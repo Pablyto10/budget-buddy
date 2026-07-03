@@ -129,7 +129,7 @@ function Home() {
       <TopNav />
 
       <main className="mx-auto max-w-4xl px-6 py-8 space-y-8 pb-40">
-        <CoachCard net={monthStats.net} subsMonthly={subsMonthly} />
+        <CoachCard net={totalBalance} subsMonthly={subsMonthly} />
         <StatsGrid
           balance={totalBalance}
           income={monthStats.income}
@@ -265,8 +265,8 @@ function CoachCard({
 }) {
   const positive = net >= 0;
   const headline = positive
-    ? `Sei in positivo di ${formatEUR(net)} questo mese.`
-    : `Stai spendendo ${formatEUR(Math.abs(net))} più di quanto entra.`;
+    ? `Il tuo bilancio attuale è di ${formatEUR(net)}.`
+    : `Sei in negativo di ${formatEUR(Math.abs(net))}.`;
   const highlight = formatEUR(Math.abs(net));
 
   return (
