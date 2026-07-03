@@ -569,6 +569,17 @@ function RecentActivity() {
                     {sourceLabel(t.source)}
                   </p>
                 </div>
+                <AddTransactionDialog
+                  transaction={t}
+                  trigger={
+                    <button
+                      aria-label="Modifica movimento"
+                      className="p-2 rounded-lg text-muted-foreground hover:text-mint hover:bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Pencil className="size-4" />
+                    </button>
+                  }
+                />
                 <button
                   onClick={() => removeTransaction(t.id)}
                   aria-label="Elimina movimento"
