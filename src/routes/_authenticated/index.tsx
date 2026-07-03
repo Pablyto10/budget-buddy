@@ -390,6 +390,7 @@ function StatsGrid({
       icon: null as null | React.ReactNode,
       to: "/transactions" as const,
       search: {} as Record<string, string>,
+      accent: "" as string,
     },
     {
       label: "Risparmio",
@@ -400,6 +401,7 @@ function StatsGrid({
       icon: <PiggyBank className="size-4 text-mint" /> as React.ReactNode,
       to: "/transactions" as const,
       search: { category: "Risparmio" },
+      accent: "cat-savings",
     },
     {
       label: "Fondo emergenza",
@@ -410,6 +412,7 @@ function StatsGrid({
       icon: <ShieldAlert className="size-4 text-amber-soft" /> as React.ReactNode,
       to: "/transactions" as const,
       search: { category: "Fondo emergenza" },
+      accent: "cat-emergency",
     },
     {
       label: "Entrate del mese",
@@ -420,6 +423,7 @@ function StatsGrid({
       icon: null,
       to: "/transactions" as const,
       search: { kind: "income", month: "current" },
+      accent: "cat-income",
     },
     {
       label: "Uscite del mese",
@@ -430,6 +434,7 @@ function StatsGrid({
       icon: null,
       to: "/transactions" as const,
       search: { kind: "expense", month: "current" },
+      accent: "cat-expense",
     },
     {
       label: "Abbonamenti",
@@ -440,6 +445,7 @@ function StatsGrid({
       icon: null,
       to: "/subscriptions" as const,
       search: {} as Record<string, string>,
+      accent: "cat-subscription",
     },
   ];
   return (
@@ -450,7 +456,7 @@ function StatsGrid({
           key={s.label}
           to={s.to}
           search={s.search as never}
-          className="block rounded-2xl border border-border bg-card p-6 space-y-3 transition-colors hover:border-mint/30 focus:outline-none focus:ring-1 focus:ring-mint"
+          className={`premium-card premium-card-hover ${s.accent} block rounded-2xl p-6 space-y-3 focus:outline-none focus:ring-1 focus:ring-mint`}
         >
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground flex items-center gap-1.5">
@@ -460,7 +466,7 @@ function StatsGrid({
             <MoreHorizontal className="size-4 text-muted-foreground/60" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="font-display text-2xl">{s.value}</span>
+            <span className={`font-display text-2xl font-extrabold ${s.positive && s.label !== "Uscite del mese" ? "text-foreground" : ""}`}>{s.value}</span>
             <span
               className={
                 s.positive ? "text-xs text-mint" : "text-xs text-muted-foreground"
