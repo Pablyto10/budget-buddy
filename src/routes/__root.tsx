@@ -81,13 +81,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "theme-color", content: "#080809" },
-      { title: "Money Coach AI — Il tuo coach finanziario personale" },
+      { title: "Where's My Budget" },
       {
         name: "description",
         content:
           "L'assistente finanziario intelligente che elimina il lavoro manuale. Voce, foto scontrino, chat AI — zero moduli.",
       },
-      { property: "og:title", content: "Money Coach AI — Il tuo coach finanziario personale" },
+      { property: "og:title", content: "Where's My Budget" },
       {
         property: "og:description",
         content:
@@ -95,12 +95,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Money Coach AI — Il tuo coach finanziario personale" },
+      { name: "twitter:title", content: "Where's My Budget" },
       { name: "description", content: "Your Money Friend is an AI-powered personal finance assistant that simplifies money management through intuitive interaction." },
       { property: "og:description", content: "Your Money Friend is an AI-powered personal finance assistant that simplifies money management through intuitive interaction." },
       { name: "twitter:description", content: "Your Money Friend is an AI-powered personal finance assistant that simplifies money management through intuitive interaction." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b4359fff-3d3a-4afc-a3b0-5a1037bf1409/id-preview-add186c0--e5368652-1a92-4938-9ab5-9c3edf9b87dd.lovable.app-1782998957040.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b4359fff-3d3a-4afc-a3b0-5a1037bf1409/id-preview-add186c0--e5368652-1a92-4938-9ab5-9c3edf9b87dd.lovable.app-1782998957040.png" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/gu3OmeRWCZgaB60lDvJ8iYaI9TI3/social-images/social-1783066646288-ChatGPT_Image_3_lug_2026,_10_17_18.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/gu3OmeRWCZgaB60lDvJ8iYaI9TI3/social-images/social-1783066646288-ChatGPT_Image_3_lug_2026,_10_17_18.webp" },
     ],
     links: [
       {
