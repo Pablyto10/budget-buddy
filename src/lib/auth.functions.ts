@@ -63,33 +63,22 @@ export const signInWithUsername = createServerFn({ method: "POST" })
   .inputValidator((data) => usernamePasswordSchema.parse(data))
   .handler(async ({ data }) => {
     const username = data.username.trim();
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-    const { data: profile, error: profileError } = await supabaseAdmin
-      .from("profiles")
-      .select("id")
-      .ilike("username", escapeLikePattern(username))
-      .maybeSingle();
-
-    if (profileError) {
-      console.error("[auth] username lookup error", profileError);
-      throw new Error("USER o password non corretti.");
-    }
-
-    if (!profile) {
-      throw new Error("USER o password non corretti.");
-    }
-
-    const { data: authUser, error: userError } =
-      await supabaseAdmin.auth.admin.getUserById(profile.id);
-
-    const email = authUser.user?.email;
-    if (userError || !email) {
-      console.error("[auth] user lookup error", userError);
-      throw new Error("USER o password non corretti.");
-    }
-
     const authClient = createAuthClient();
+
+    const { data: email, error: rpcError } = await authClient.rpc(
+      "get_email_for_username",
+      { _username: username },
+    );
+
+    if (rpcError) {
+      console.error("[auth] username lookup error", rpcError);
+      throw new Error("USER o password non corretti.");
+    }
+
+    if (!email) {
+      throw new Error("USER o password non corretti.");
+    }
+
     const { data: sessionData, error: signInError } =
       await authClient.auth.signInWithPassword({
         email,
