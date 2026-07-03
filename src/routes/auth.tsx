@@ -99,7 +99,16 @@ function AuthPage() {
       return;
     }
 
-    // 3) Verifica che il profilo esista davvero
+    // Se la conferma email è attiva, non c'è sessione: mostra messaggio
+    // e non provare a leggere il profilo (RLS lo bloccherebbe).
+    if (data.user && !data.session) {
+      toast.success(
+        `Account creato! Controlla la tua email (${parsed.data.email}) per confermare.`,
+      );
+      return;
+    }
+
+    // 3) Verifica che il profilo esista davvero (solo se già autenticato)
     if (data.user) {
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
