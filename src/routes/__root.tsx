@@ -107,7 +107,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", type: "image/png", href: "/__l5e/assets-v1/97279fdc-1094-4289-8849-42c00f372137/wheres-my-budget-logo.png" },
     ],
   }),
   shellComponent: RootShell,
