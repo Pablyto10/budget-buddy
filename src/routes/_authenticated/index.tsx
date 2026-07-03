@@ -270,7 +270,50 @@ function CoachCard({
   const highlight = formatEUR(Math.abs(net));
 
   return (
-    <section className="relative overflow-hidden rounded-3xl border border-mint/10 bg-gradient-to-br from-accent/60 via-card to-transparent p-8 animate-fade-up">
+    <section className="relative overflow-hidden rounded-3xl border border-white/[0.06] hero-gradient p-8 animate-fade-up shadow-[0_30px_80px_-40px_rgba(0,0,0,0.9)]">
+      {/* Abstract growing line */}
+      <svg
+        aria-hidden
+        className="pointer-events-none absolute inset-0 h-full w-full opacity-70"
+        viewBox="0 0 800 300"
+        preserveAspectRatio="none"
+      >
+        <defs>
+          <linearGradient id="hero-line" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#22C55E" stopOpacity="0" />
+            <stop offset="50%" stopColor="#22C55E" stopOpacity="0.6" />
+            <stop offset="100%" stopColor="#10B981" stopOpacity="0.9" />
+          </linearGradient>
+        </defs>
+        <path
+          d="M0,220 C160,210 260,180 380,150 C520,115 620,80 800,40"
+          fill="none"
+          stroke="url(#hero-line)"
+          strokeWidth="1.5"
+          strokeDasharray="400"
+          style={{ animation: "hero-line 2.4s cubic-bezier(0.16,1,0.3,1) both" }}
+        />
+      </svg>
+      {/* Twinkles */}
+      <div className="pointer-events-none absolute inset-0" aria-hidden>
+        {[
+          { top: "18%", left: "72%", d: "0s" },
+          { top: "40%", left: "88%", d: "0.6s" },
+          { top: "68%", left: "62%", d: "1.2s" },
+          { top: "28%", left: "45%", d: "1.8s" },
+        ].map((p, i) => (
+          <span
+            key={i}
+            className="absolute size-[3px] rounded-full bg-mint"
+            style={{
+              top: p.top,
+              left: p.left,
+              animation: `twinkle 3.2s ease-in-out ${p.d} infinite`,
+              boxShadow: "0 0 12px rgba(34,197,94,0.7)",
+            }}
+          />
+        ))}
+      </div>
       <div className="relative z-10 flex flex-col gap-5">
         <div className="flex items-center gap-2.5 text-mint">
           <span className="size-2 rounded-full bg-mint animate-pulse" />
@@ -280,7 +323,7 @@ function CoachCard({
         </div>
         <h1 className="font-display text-3xl leading-[1.15] md:text-4xl md:leading-[1.1] max-w-2xl">
           "{headline.split(highlight)[0]}
-          <span className={positive ? "text-mint" : "text-amber-soft"}>
+          <span className={positive ? "text-mint glow-mint" : "text-rose-soft"}>
             {highlight}
           </span>
           {headline.split(highlight)[1] ?? ""}"
@@ -293,7 +336,7 @@ function CoachCard({
         <div className="flex flex-wrap gap-3 mt-2">
           <AddTransactionDialog
             trigger={
-              <button className="inline-flex items-center gap-2 rounded-xl bg-mint px-5 py-2.5 text-sm font-semibold text-mint-foreground transition-transform hover:scale-[1.02]">
+              <button className="btn-primary-premium inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold">
                 <Plus className="size-4" strokeWidth={2.5} />
                 Aggiungi movimento
               </button>
@@ -301,7 +344,7 @@ function CoachCard({
           />
           <Link
             to="/subscriptions"
-            className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-white/10"
+            className="btn-secondary-premium inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold"
           >
             Gestisci abbonamenti
             <ArrowUpRight className="size-4" strokeWidth={2.5} />
@@ -309,7 +352,11 @@ function CoachCard({
         </div>
       </div>
       <div
-        className="pointer-events-none absolute -right-20 -top-20 size-64 rounded-full bg-mint/15 blur-[100px]"
+        className="pointer-events-none absolute -right-24 -top-24 size-72 rounded-full bg-mint/25 blur-[110px]"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute -left-24 bottom-[-30%] size-72 rounded-full bg-sky-soft/10 blur-[120px]"
         aria-hidden
       />
     </section>
