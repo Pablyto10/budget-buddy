@@ -26,7 +26,7 @@ import { getGoalPlan } from "@/lib/ai-insights.functions";
 export const Route = createFileRoute("/_authenticated/goals")({
   head: () => ({
     meta: [
-      { title: "Obiettivi — Money Coach AI" },
+      { title: "Obiettivi — Where's My Budget" },
       {
         name: "description",
         content:

@@ -27,13 +27,13 @@ import { SubscriptionDialog } from "@/components/SubscriptionDialog";
 export const Route = createFileRoute("/_authenticated/subscriptions")({
   head: () => ({
     meta: [
-      { title: "Abbonamenti — Money Coach AI" },
+      { title: "Abbonamenti — Where's My Budget" },
       {
         name: "description",
         content:
           "Monitora e gestisci tutti i tuoi abbonamenti: importi, date di rinnovo, costo mensile equivalente e suggerimenti AI per risparmiare.",
       },
-      { property: "og:title", content: "Abbonamenti — Money Coach AI" },
+      { property: "og:title", content: "Abbonamenti — Where's My Budget" },
       {
         property: "og:description",
         content:

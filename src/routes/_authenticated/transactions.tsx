@@ -12,7 +12,7 @@ import { SwipeableRow } from "@/components/SwipeableRow";
 export const Route = createFileRoute("/_authenticated/transactions")({
   head: () => ({
     meta: [
-      { title: "Tutti i movimenti — Money Coach AI" },
+      { title: "Tutti i movimenti — Where's My Budget" },
       {
         name: "description",
         content: "Storico completo di entrate e spese con filtro per categoria e ricerca.",

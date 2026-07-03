@@ -181,7 +181,7 @@ function AuthPage() {
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {mode === "login"
-              ? "Entra nel tuo Money Coach AI"
+              ? "Entra nel tuo Where's My Budget"
               : "Il tuo coach finanziario personale"}
           </p>
         </div>

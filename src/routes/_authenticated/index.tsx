@@ -46,17 +46,18 @@ import {
   type Transaction,
 } from "@/lib/finance-store";
 import { AddTransactionDialog } from "@/components/AddTransactionDialog";
+import logoAsset from "@/assets/wheres-my-budget-logo.png.asset.json";
 
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
-      { title: "Money Coach AI — Il tuo coach finanziario personale" },
+      { title: "Where's My Budget — Il tuo coach finanziario personale" },
       {
         name: "description",
         content:
-          "Money Coach AI è l'assistente finanziario intelligente che elimina il lavoro manuale. Fotografa uno scontrino, dì una frase: il tuo coach fa il resto.",
+          "Where's My Budget è l'assistente finanziario intelligente che elimina il lavoro manuale. Fotografa uno scontrino, dì una frase: il tuo coach fa il resto.",
       },
-      { property: "og:title", content: "Money Coach AI" },
+      { property: "og:title", content: "Where's My Budget" },
       {
         property: "og:description",
         content:
@@ -219,10 +220,12 @@ function TopNav() {
   return (
     <nav className="sticky top-0 z-40 flex items-center justify-between px-6 py-4 border-b border-white/5 bg-background/80 backdrop-blur-xl">
       <div className="flex items-center gap-2.5">
-        <div className="size-8 rounded-lg bg-mint grid place-items-center">
-          <div className="size-3.5 rounded-sm bg-background rotate-45" />
-        </div>
-        <span className="font-display text-lg tracking-tight">Money Coach</span>
+        <img
+          src={logoAsset.url}
+          alt="Where's My Budget"
+          className="size-8 rounded-lg object-cover"
+        />
+        <span className="font-display text-lg tracking-tight">Where's My Budget</span>
       </div>
       <div className="flex items-center gap-2">
         <Link
