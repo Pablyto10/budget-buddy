@@ -30,27 +30,40 @@ import {
 type Props = {
   trigger: ReactNode;
   defaultKind?: TxKind;
+  transaction?: import("@/lib/finance-store").Transaction;
 };
 
-export function AddTransactionDialog({ trigger, defaultKind = "expense" }: Props) {
-  const { addTransaction } = useFinance();
+export function AddTransactionDialog({ trigger, defaultKind = "expense", transaction }: Props) {
+  const { addTransaction, updateTransaction } = useFinance();
+  const isEdit = Boolean(transaction);
   const [open, setOpen] = useState(false);
-  const [kind, setKind] = useState<TxKind>(defaultKind);
-  const [amount, setAmount] = useState("");
-  const [merchant, setMerchant] = useState("");
-  const [category, setCategory] = useState<string>("");
-  const [note, setNote] = useState("");
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [kind, setKind] = useState<TxKind>(transaction?.kind ?? defaultKind);
+  const [amount, setAmount] = useState(transaction ? String(transaction.amount) : "");
+  const [merchant, setMerchant] = useState(transaction?.merchant ?? "");
+  const [category, setCategory] = useState<string>(transaction?.category ?? "");
+  const [note, setNote] = useState(transaction?.note ?? "");
+  const [date, setDate] = useState(
+    transaction ? transaction.date.slice(0, 10) : new Date().toISOString().slice(0, 10),
+  );
 
   const categories = kind === "expense" ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
 
   function reset() {
-    setAmount("");
-    setMerchant("");
-    setCategory("");
-    setNote("");
-    setDate(new Date().toISOString().slice(0, 10));
-    setKind(defaultKind);
+    if (transaction) {
+      setKind(transaction.kind);
+      setAmount(String(transaction.amount));
+      setMerchant(transaction.merchant);
+      setCategory(transaction.category);
+      setNote(transaction.note ?? "");
+      setDate(transaction.date.slice(0, 10));
+    } else {
+      setAmount("");
+      setMerchant("");
+      setCategory("");
+      setNote("");
+      setDate(new Date().toISOString().slice(0, 10));
+      setKind(defaultKind);
+    }
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -64,19 +77,26 @@ export function AddTransactionDialog({ trigger, defaultKind = "expense" }: Props
       toast.error("Inserisci una descrizione");
       return;
     }
-    addTransaction({
+    const payload = {
       kind,
       amount: parsed,
       merchant: merchant.trim(),
-      category: category || (kind === "expense" ? "Altro" : "Altro"),
+      category: category || "Altro",
       note: note.trim() || undefined,
       date: new Date(date).toISOString(),
-      source: "manual",
-    });
-    toast.success(
-      kind === "expense" ? "Spesa registrata" : "Entrata registrata",
-      { description: `${merchant} · €${parsed.toFixed(2)}` },
-    );
+    };
+    if (isEdit && transaction) {
+      updateTransaction(transaction.id, payload);
+      toast.success("Movimento aggiornato", {
+        description: `${payload.merchant} · €${parsed.toFixed(2)}`,
+      });
+    } else {
+      addTransaction({ ...payload, source: "manual" });
+      toast.success(
+        kind === "expense" ? "Spesa registrata" : "Entrata registrata",
+        { description: `${payload.merchant} · €${parsed.toFixed(2)}` },
+      );
+    }
     reset();
     setOpen(false);
   }
@@ -87,7 +107,7 @@ export function AddTransactionDialog({ trigger, defaultKind = "expense" }: Props
       <DialogContent className="sm:max-w-md bg-card border-white/10">
         <DialogHeader>
           <DialogTitle className="font-display text-xl">
-            Nuova {kind === "expense" ? "spesa" : "entrata"}
+            {isEdit ? "Modifica" : "Nuova"} {kind === "expense" ? "spesa" : "entrata"}
           </DialogTitle>
           <DialogDescription>
             Registra un movimento manuale. Puoi cambiare tipo, categoria e data.
@@ -188,7 +208,7 @@ export function AddTransactionDialog({ trigger, defaultKind = "expense" }: Props
               type="submit"
               className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-mint px-5 py-3 text-sm font-semibold text-mint-foreground transition-transform hover:scale-[1.01]"
             >
-              Salva {kind === "expense" ? "spesa" : "entrata"}
+              {isEdit ? "Aggiorna" : "Salva"} {kind === "expense" ? "spesa" : "entrata"}
             </button>
           </DialogFooter>
         </form>
