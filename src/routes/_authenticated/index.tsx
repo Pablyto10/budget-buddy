@@ -18,6 +18,9 @@ import {
   Loader2,
   Square,
   LogOut,
+  Pencil,
+  PiggyBank,
+  ShieldAlert,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -69,12 +72,33 @@ export const Route = createFileRoute("/_authenticated/")({
 function Home() {
   const { transactions, subscriptions, goals } = useFinance();
 
-  // Bilancio attuale = somma di tutte le entrate meno tutte le uscite
+  const subsMonthly = useMemo(
+    () =>
+      subscriptions
+        .filter((s) => s.active)
+        .reduce((sum, s) => sum + monthlyEquivalent(s), 0),
+    [subscriptions],
+  );
+
+  // Bilancio attuale = entrate - uscite - abbonamenti (equivalente mensile)
   const totalBalance = useMemo(() => {
-    return transactions.reduce(
+    const tx = transactions.reduce(
       (s, t) => s + (t.kind === "income" ? t.amount : -t.amount),
       0,
     );
+    return tx - subsMonthly;
+  }, [transactions, subsMonthly]);
+
+  // Somme automatiche per Risparmio e Fondo Emergenza
+  const savings = useMemo(() => {
+    let risparmio = 0;
+    let emergenza = 0;
+    for (const t of transactions) {
+      const sign = t.kind === "expense" ? 1 : -1;
+      if (t.category === "Risparmio") risparmio += sign * t.amount;
+      if (t.category === "Fondo emergenza") emergenza += sign * t.amount;
+    }
+    return { risparmio: Math.max(0, risparmio), emergenza: Math.max(0, emergenza) };
   }, [transactions]);
 
   // Aggregati del mese corrente
@@ -98,14 +122,6 @@ function Home() {
     return { income, expenses, net, burnRate };
   }, [transactions]);
 
-  const subsMonthly = useMemo(
-    () =>
-      subscriptions
-        .filter((s) => s.active)
-        .reduce((sum, s) => sum + monthlyEquivalent(s), 0),
-    [subscriptions],
-  );
-
   const featuredGoal = goals[0];
 
   return (
@@ -120,6 +136,8 @@ function Home() {
           expenses={monthStats.expenses}
           burnRate={monthStats.burnRate}
           subsMonthly={subsMonthly}
+          savings={savings.risparmio}
+          emergency={savings.emergenza}
         />
         {featuredGoal ? <GoalPreview goal={featuredGoal} /> : null}
         <RecentActivity />
@@ -136,7 +154,6 @@ function GoalPreview({ goal }: { goal: NonNullable<ReturnType<typeof useFinance>
   const progress = goal.targetAmount > 0
     ? Math.min(100, Math.round((goal.savedAmount / goal.targetAmount) * 100))
     : 0;
-  const missingPct = Math.max(0, 100 - progress);
 
   return (
     <Link
@@ -159,10 +176,10 @@ function GoalPreview({ goal }: { goal: NonNullable<ReturnType<typeof useFinance>
               <h3 className="font-display text-xl truncate">{goal.title}</h3>
             </div>
             <div className="text-right shrink-0">
-              <p className="font-display text-2xl text-mint">{missingPct}%</p>
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                mancante
+                Sei al
               </p>
+              <p className="font-display text-2xl text-mint">{progress}%</p>
             </div>
           </div>
         </div>
@@ -178,10 +195,10 @@ function GoalPreview({ goal }: { goal: NonNullable<ReturnType<typeof useFinance>
             </p>
           </div>
           <div className="text-right shrink-0">
-            <p className="font-display text-3xl text-mint">{missingPct}%</p>
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-              mancante
+              Sei al
             </p>
+            <p className="font-display text-3xl text-mint">{progress}%</p>
           </div>
         </div>
       )}
@@ -305,12 +322,16 @@ function StatsGrid({
   expenses,
   burnRate,
   subsMonthly,
+  savings,
+  emergency,
 }: {
   balance: number;
   income: number;
   expenses: number;
   burnRate: number;
   subsMonthly: number;
+  savings: number;
+  emergency: number;
 }) {
   const stats = [
     {
@@ -319,6 +340,23 @@ function StatsGrid({
       delta: balance >= 0 ? "in positivo" : "in negativo",
       positive: balance >= 0,
       micro: "ring" as const,
+      icon: null as null | React.ReactNode,
+    },
+    {
+      label: "Risparmio",
+      value: formatEUR(savings),
+      delta: "accantonato",
+      positive: true,
+      micro: "bar" as const,
+      icon: <PiggyBank className="size-4 text-mint" /> as React.ReactNode,
+    },
+    {
+      label: "Fondo emergenza",
+      value: formatEUR(emergency),
+      delta: "riserva",
+      positive: true,
+      micro: "bar" as const,
+      icon: <ShieldAlert className="size-4 text-amber-soft" /> as React.ReactNode,
     },
     {
       label: "Entrate del mese",
@@ -326,6 +364,7 @@ function StatsGrid({
       delta: "questo mese",
       positive: true,
       micro: "bar" as const,
+      icon: null,
     },
     {
       label: "Uscite del mese",
@@ -333,6 +372,7 @@ function StatsGrid({
       delta: `${formatEUR(burnRate)}/giorno`,
       positive: false,
       micro: "spark" as const,
+      icon: null,
     },
     {
       label: "Abbonamenti",
@@ -340,10 +380,11 @@ function StatsGrid({
       delta: "al mese",
       positive: true,
       micro: "ring" as const,
+      icon: null,
     },
   ];
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
 
       {stats.map((s) => (
         <div
@@ -351,7 +392,10 @@ function StatsGrid({
           className="rounded-2xl border border-border bg-card p-6 space-y-3 transition-colors hover:border-mint/20"
         >
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">{s.label}</span>
+            <span className="text-sm text-muted-foreground flex items-center gap-1.5">
+              {s.icon}
+              {s.label}
+            </span>
             <MoreHorizontal className="size-4 text-muted-foreground/60" />
           </div>
           <div className="flex items-baseline gap-2">
@@ -525,6 +569,17 @@ function RecentActivity() {
                     {sourceLabel(t.source)}
                   </p>
                 </div>
+                <AddTransactionDialog
+                  transaction={t}
+                  trigger={
+                    <button
+                      aria-label="Modifica movimento"
+                      className="p-2 rounded-lg text-muted-foreground hover:text-mint hover:bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Pencil className="size-4" />
+                    </button>
+                  }
+                />
                 <button
                   onClick={() => removeTransaction(t.id)}
                   aria-label="Elimina movimento"

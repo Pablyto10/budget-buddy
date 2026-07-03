@@ -59,6 +59,7 @@ type State = {
 type Ctx = State & {
   loading: boolean;
   addTransaction: (tx: Omit<Transaction, "id">) => Promise<void>;
+  updateTransaction: (id: string, patch: Partial<Omit<Transaction, "id">>) => Promise<void>;
   removeTransaction: (id: string) => Promise<void>;
   addSubscription: (sub: Omit<Subscription, "id">) => Promise<void>;
   updateSubscription: (id: string, patch: Partial<Subscription>) => Promise<void>;
@@ -223,6 +224,40 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, transactions: s.transactions.filter((t) => t.id !== id) }));
   }, []);
 
+  const updateTransaction = useCallback(
+    async (id: string, patch: Partial<Omit<Transaction, "id">>) => {
+      const dbPatch: Partial<{
+        kind: string;
+        amount: number;
+        merchant: string;
+        category: string;
+        note: string | null;
+        date: string;
+        source: string | null;
+      }> = {};
+      if (patch.kind !== undefined) dbPatch.kind = patch.kind;
+      if (patch.amount !== undefined) dbPatch.amount = patch.amount;
+      if (patch.merchant !== undefined) dbPatch.merchant = patch.merchant;
+      if (patch.category !== undefined) dbPatch.category = patch.category;
+      if (patch.note !== undefined) dbPatch.note = patch.note ?? null;
+      if (patch.date !== undefined) dbPatch.date = patch.date;
+      if (patch.source !== undefined) dbPatch.source = patch.source ?? null;
+      const { data, error } = await supabase
+        .from("transactions")
+        .update(dbPatch)
+        .eq("id", id)
+        .select()
+        .single();
+      if (error || !data) return;
+      const mapped = mapTx(data as TxRow);
+      setState((s) => ({
+        ...s,
+        transactions: s.transactions.map((t) => (t.id === id ? mapped : t)),
+      }));
+    },
+    [],
+  );
+
   const addSubscription = useCallback(
     async (sub: Omit<Subscription, "id">) => {
       if (!userId) return;
@@ -350,6 +385,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
       ...state,
       loading,
       addTransaction,
+      updateTransaction,
       removeTransaction,
       addSubscription,
       updateSubscription,
@@ -362,6 +398,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
       state,
       loading,
       addTransaction,
+      updateTransaction,
       removeTransaction,
       addSubscription,
       updateSubscription,
