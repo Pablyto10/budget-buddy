@@ -398,10 +398,10 @@ function StatsGrid({
       delta: "accantonato",
       positive: true,
       micro: "bar" as const,
-      icon: <PiggyBank className="size-4 text-mint" /> as React.ReactNode,
+      icon: <PiggyBank className="size-4 text-info" /> as React.ReactNode,
       to: "/transactions" as const,
       search: { category: "Risparmio" },
-      accent: "cat-savings",
+      accent: "cat-subscription",
     },
     {
       label: "Fondo emergenza",
@@ -409,10 +409,10 @@ function StatsGrid({
       delta: "riserva",
       positive: true,
       micro: "bar" as const,
-      icon: <ShieldAlert className="size-4 text-amber-soft" /> as React.ReactNode,
+      icon: <ShieldAlert className="size-4 text-info" /> as React.ReactNode,
       to: "/transactions" as const,
       search: { category: "Fondo emergenza" },
-      accent: "cat-emergency",
+      accent: "cat-subscription",
     },
     {
       label: "Entrate del mese",
@@ -445,7 +445,7 @@ function StatsGrid({
       icon: null,
       to: "/subscriptions" as const,
       search: {} as Record<string, string>,
-      accent: "cat-subscription",
+      accent: "cat-savings",
     },
   ];
   return (
