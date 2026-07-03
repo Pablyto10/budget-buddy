@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { ArrowLeft, ArrowDownLeft, ArrowUpRight, Search, Trash2 } from "lucide-react";
+import { ArrowLeft, ArrowDownLeft, ArrowUpRight, Pencil, Search, Trash2 } from "lucide-react";
 import { format, isToday, isYesterday } from "date-fns";
 import { it } from "date-fns/locale";
 import { toast } from "sonner";
@@ -200,6 +200,17 @@ function TransactionsPage() {
                     {t.kind === "income" ? "+" : "-"}
                     {formatEUR(t.amount)}
                   </p>
+                  <AddTransactionDialog
+                    transaction={t}
+                    trigger={
+                      <button
+                        aria-label="Modifica"
+                        className="p-2 rounded-lg text-muted-foreground hover:text-mint hover:bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <Pencil className="size-4" />
+                      </button>
+                    }
+                  />
                   <button
                     onClick={() => {
                       removeTransaction(t.id);
