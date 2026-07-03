@@ -43,7 +43,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       console.error("[profile] load error", error);
       setProfile(null);
     } else if (data) {
-      setProfile({ id: data.id, username: data.username, createdAt: data.created_at });
+      setProfile({ id: data.id, username: data.username ?? "", createdAt: data.created_at });
     } else {
       setProfile(null);
     }
