@@ -154,7 +154,6 @@ function GoalPreview({ goal }: { goal: NonNullable<ReturnType<typeof useFinance>
   const progress = goal.targetAmount > 0
     ? Math.min(100, Math.round((goal.savedAmount / goal.targetAmount) * 100))
     : 0;
-  const missingPct = Math.max(0, 100 - progress);
 
   return (
     <Link
@@ -177,10 +176,10 @@ function GoalPreview({ goal }: { goal: NonNullable<ReturnType<typeof useFinance>
               <h3 className="font-display text-xl truncate">{goal.title}</h3>
             </div>
             <div className="text-right shrink-0">
-              <p className="font-display text-2xl text-mint">{missingPct}%</p>
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                mancante
+                Sei al
               </p>
+              <p className="font-display text-2xl text-mint">{progress}%</p>
             </div>
           </div>
         </div>
@@ -196,10 +195,10 @@ function GoalPreview({ goal }: { goal: NonNullable<ReturnType<typeof useFinance>
             </p>
           </div>
           <div className="text-right shrink-0">
-            <p className="font-display text-3xl text-mint">{missingPct}%</p>
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-              mancante
+              Sei al
             </p>
+            <p className="font-display text-3xl text-mint">{progress}%</p>
           </div>
         </div>
       )}
