@@ -10,8 +10,8 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Money Coach AI — Obsidian Mint design system.
- * Dark-first. Calm, human, high-contrast typography over deep obsidian.
+ * Money Coach AI — Premium Fintech design system (2026).
+ * Dark-first. Inspired by Copilot Money, Monarch, Linear, Raycast, Stripe.
  * All colors defined here as tokens. NEVER hardcode colors in components.
  */
 
@@ -54,42 +54,50 @@
   --color-rose-soft: var(--rose-soft);
   --color-sky-soft: var(--sky-soft);
   --color-text-secondary: var(--text-secondary);
+  --color-gold: var(--gold);
+  --color-info: var(--info);
+  --color-violet: var(--violet);
+  --color-orange: var(--orange);
 }
 
 :root {
-  --radius: 20px;
+  --radius: 24px;
 
-  /* Obsidian Mint palette — the app's default (dark-first). */
-  --background: #080809;
-  --foreground: #FAFAFA;
-  --card: #121214;
-  --card-foreground: #FAFAFA;
-  --card-elevated: #18181B;
-  --popover: #121214;
-  --popover-foreground: #FAFAFA;
+  /* Premium Fintech palette — deep obsidian + emerald. */
+  --background: #0B0F14;
+  --foreground: #F8FAFC;
+  --card: #12181F;
+  --card-foreground: #F8FAFC;
+  --card-elevated: #1A222C;
+  --popover: #12181F;
+  --popover-foreground: #F8FAFC;
 
-  --primary: #A5F3E3;
-  --primary-foreground: #080809;
-  --secondary: #18181B;
-  --secondary-foreground: #FAFAFA;
-  --muted: #18181B;
-  --muted-foreground: #8E8E93;
-  --accent: #1A2E2A;
-  --accent-foreground: #A5F3E3;
-  --destructive: #F0A5A5;
-  --destructive-foreground: #080809;
+  --primary: #22C55E;
+  --primary-foreground: #0B0F14;
+  --secondary: #1A222C;
+  --secondary-foreground: #F8FAFC;
+  --muted: #1A222C;
+  --muted-foreground: #94A3B8;
+  --accent: #0F2A1E;
+  --accent-foreground: #22C55E;
+  --destructive: #EF4444;
+  --destructive-foreground: #F8FAFC;
 
-  --border: #242427;
-  --input: #242427;
-  --ring: #A5F3E3;
+  --border: rgba(255, 255, 255, 0.05);
+  --input: rgba(255, 255, 255, 0.08);
+  --ring: #22C55E;
 
-  --mint: #A5F3E3;
-  --mint-muted: #1A2E2A;
-  --mint-foreground: #080809;
-  --amber-soft: #F5C97B;
-  --rose-soft: #F0A5A5;
-  --sky-soft: #93C5FD;
-  --text-secondary: #8E8E93;
+  --mint: #22C55E;
+  --mint-muted: #0F2A1E;
+  --mint-foreground: #0B0F14;
+  --amber-soft: #F59E0B;
+  --rose-soft: #EF4444;
+  --sky-soft: #3B82F6;
+  --text-secondary: #94A3B8;
+  --gold: #EAB308;
+  --info: #3B82F6;
+  --violet: #8B5CF6;
+  --orange: #F59E0B;
 }
 
 /* Light "Paper Mint" variation (optional). Same tokens, inverted. */
@@ -156,6 +164,77 @@
   );
   background-size: 200% 100%;
   animation: shimmer 2.2s ease-in-out infinite;
+}
+
+@utility hero-gradient {
+  background: linear-gradient(135deg, #12211B 0%, #16222F 45%, #101418 100%);
+}
+
+@utility premium-card {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--card) 96%, white 4%) 0%, var(--card) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 10px 30px -18px rgba(0, 0, 0, 0.6);
+  transition: transform 250ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 250ms ease, box-shadow 250ms ease, background 250ms ease;
+}
+@utility premium-card-hover {
+  &:hover {
+    background: linear-gradient(180deg, #1A222C 0%, #151C24 100%);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.06) inset,
+      0 18px 40px -20px rgba(0, 0, 0, 0.75);
+    transform: translateY(-1px);
+  }
+}
+
+@utility glow-mint {
+  text-shadow: 0 0 24px color-mix(in oklab, #22C55E 40%, transparent);
+}
+
+@utility btn-primary-premium {
+  background: linear-gradient(180deg, #22C55E 0%, #16A34A 100%);
+  color: #0B0F14;
+  box-shadow: 0 8px 24px -10px rgba(34, 197, 94, 0.55),
+    0 1px 0 rgba(255, 255, 255, 0.15) inset;
+  transition: transform 200ms ease, box-shadow 200ms ease, filter 200ms ease;
+  &:hover {
+    filter: brightness(1.05);
+    box-shadow: 0 12px 32px -10px rgba(34, 197, 94, 0.7),
+      0 1px 0 rgba(255, 255, 255, 0.2) inset;
+    transform: translateY(-1px);
+  }
+}
+
+@utility btn-secondary-premium {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--foreground);
+  transition: background 200ms ease, border-color 200ms ease;
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.14);
+  }
+}
+
+/* Category accent left-borders (used on list items / cards). */
+@utility cat-income { border-left: 3px solid #22C55E; }
+@utility cat-expense { border-left: 3px solid #EF4444; }
+@utility cat-savings { border-left: 3px solid #EAB308; }
+@utility cat-subscription { border-left: 3px solid #3B82F6; }
+@utility cat-goal { border-left: 3px solid #8B5CF6; }
+@utility cat-emergency { border-left: 3px solid #F59E0B; }
+
+@keyframes hero-line {
+  0% { stroke-dashoffset: 400; opacity: 0; }
+  30% { opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 1; }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.9; }
 }
 
 @keyframes shimmer {
