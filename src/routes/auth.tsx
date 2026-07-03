@@ -166,7 +166,7 @@ function AuthPage() {
       else await handleLogin();
     } catch (err) {
       console.error("[auth] unexpected error", err);
-      toast.error("Errore imprevisto. Riprova.");
+      toast.error(err instanceof Error ? humanizeAuthError(err.message) : "Errore imprevisto. Riprova.");
     } finally {
       setLoading(false);
     }
