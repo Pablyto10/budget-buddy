@@ -456,20 +456,20 @@ function StatsGrid({
           key={s.label}
           to={s.to}
           search={s.search as never}
-          className={`premium-card premium-card-hover ${s.accent} block rounded-2xl p-6 space-y-3 focus:outline-none focus:ring-1 focus:ring-mint`}
+          className={`premium-card premium-card-hover ${s.accent} block rounded-2xl p-5 sm:p-6 space-y-3 focus:outline-none focus:ring-1 focus:ring-mint min-w-0`}
         >
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground flex items-center gap-1.5">
+            <span className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1.5 min-w-0 truncate">
               {s.icon}
-              {s.label}
+              <span className="truncate">{s.label}</span>
             </span>
-            <MoreHorizontal className="size-4 text-muted-foreground/60" />
+            <MoreHorizontal className="size-4 text-muted-foreground/60 shrink-0" />
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className={`font-display text-2xl font-extrabold ${s.positive && s.label !== "Uscite del mese" ? "text-foreground" : ""}`}>{s.value}</span>
+          <div className="flex flex-col sm:flex-row sm:items-baseline gap-0.5 sm:gap-2 min-w-0">
+            <span className={`font-display text-xl sm:text-2xl font-extrabold truncate ${s.positive && s.label !== "Uscite del mese" ? "text-foreground" : ""}`}>{s.value}</span>
             <span
               className={
-                s.positive ? "text-xs text-mint" : "text-xs text-muted-foreground"
+                (s.positive ? "text-xs text-mint" : "text-xs text-muted-foreground") + " truncate"
               }
             >
               {s.delta}
