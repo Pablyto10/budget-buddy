@@ -323,12 +323,16 @@ function StatsGrid({
   expenses,
   burnRate,
   subsMonthly,
+  savings,
+  emergency,
 }: {
   balance: number;
   income: number;
   expenses: number;
   burnRate: number;
   subsMonthly: number;
+  savings: number;
+  emergency: number;
 }) {
   const stats = [
     {
@@ -337,6 +341,23 @@ function StatsGrid({
       delta: balance >= 0 ? "in positivo" : "in negativo",
       positive: balance >= 0,
       micro: "ring" as const,
+      icon: null as null | React.ReactNode,
+    },
+    {
+      label: "Risparmio",
+      value: formatEUR(savings),
+      delta: "accantonato",
+      positive: true,
+      micro: "bar" as const,
+      icon: <PiggyBank className="size-4 text-mint" /> as React.ReactNode,
+    },
+    {
+      label: "Fondo emergenza",
+      value: formatEUR(emergency),
+      delta: "riserva",
+      positive: true,
+      micro: "bar" as const,
+      icon: <ShieldAlert className="size-4 text-amber-soft" /> as React.ReactNode,
     },
     {
       label: "Entrate del mese",
@@ -344,6 +365,7 @@ function StatsGrid({
       delta: "questo mese",
       positive: true,
       micro: "bar" as const,
+      icon: null,
     },
     {
       label: "Uscite del mese",
@@ -351,6 +373,7 @@ function StatsGrid({
       delta: `${formatEUR(burnRate)}/giorno`,
       positive: false,
       micro: "spark" as const,
+      icon: null,
     },
     {
       label: "Abbonamenti",
@@ -358,10 +381,11 @@ function StatsGrid({
       delta: "al mese",
       positive: true,
       micro: "ring" as const,
+      icon: null,
     },
   ];
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
 
       {stats.map((s) => (
         <div
@@ -369,7 +393,10 @@ function StatsGrid({
           className="rounded-2xl border border-border bg-card p-6 space-y-3 transition-colors hover:border-mint/20"
         >
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">{s.label}</span>
+            <span className="text-sm text-muted-foreground flex items-center gap-1.5">
+              {s.icon}
+              {s.label}
+            </span>
             <MoreHorizontal className="size-4 text-muted-foreground/60" />
           </div>
           <div className="flex items-baseline gap-2">
