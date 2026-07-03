@@ -18,6 +18,14 @@ export const Route = createFileRoute("/_authenticated/transactions")({
       },
     ],
   }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    kind:
+      search.kind === "income" || search.kind === "expense" || search.kind === "all"
+        ? (search.kind as "income" | "expense" | "all")
+        : ("all" as const),
+    category: typeof search.category === "string" ? search.category : "all",
+    month: search.month === "current" ? ("current" as const) : undefined,
+  }),
   component: TransactionsPage,
 });
 
@@ -46,10 +54,12 @@ function sourceLabel(source: Transaction["source"]) {
 type Filter = "all" | "expense" | "income";
 
 function TransactionsPage() {
+  const search = Route.useSearch();
   const { transactions, removeTransaction } = useFinance();
-  const [filter, setFilter] = useState<Filter>("all");
+  const [filter, setFilter] = useState<Filter>(search.kind ?? "all");
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<string>("all");
+  const [category, setCategory] = useState<string>(search.category ?? "all");
+  const monthFilter = search.month === "current";
 
   const categories = useMemo(() => {
     const set = new Set<string>();
@@ -59,14 +69,20 @@ function TransactionsPage() {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
+    const now = new Date();
     return transactions.filter((t) => {
       if (filter !== "all" && t.kind !== filter) return false;
       if (category !== "all" && t.category !== category) return false;
+      if (monthFilter) {
+        const d = new Date(t.date);
+        if (d.getMonth() !== now.getMonth() || d.getFullYear() !== now.getFullYear())
+          return false;
+      }
       if (q && !`${t.merchant} ${t.category} ${t.note ?? ""}`.toLowerCase().includes(q))
         return false;
       return true;
     });
-  }, [transactions, filter, category, query]);
+  }, [transactions, filter, category, query, monthFilter]);
 
   const totals = useMemo(() => {
     const income = filtered
