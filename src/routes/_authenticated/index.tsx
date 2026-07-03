@@ -341,6 +341,8 @@ function StatsGrid({
       positive: balance >= 0,
       micro: "ring" as const,
       icon: null as null | React.ReactNode,
+      to: "/transactions" as const,
+      search: {} as Record<string, string>,
     },
     {
       label: "Risparmio",
@@ -349,6 +351,8 @@ function StatsGrid({
       positive: true,
       micro: "bar" as const,
       icon: <PiggyBank className="size-4 text-mint" /> as React.ReactNode,
+      to: "/transactions" as const,
+      search: { category: "Risparmio" },
     },
     {
       label: "Fondo emergenza",
@@ -357,6 +361,8 @@ function StatsGrid({
       positive: true,
       micro: "bar" as const,
       icon: <ShieldAlert className="size-4 text-amber-soft" /> as React.ReactNode,
+      to: "/transactions" as const,
+      search: { category: "Fondo emergenza" },
     },
     {
       label: "Entrate del mese",
@@ -365,6 +371,8 @@ function StatsGrid({
       positive: true,
       micro: "bar" as const,
       icon: null,
+      to: "/transactions" as const,
+      search: { kind: "income", month: "current" },
     },
     {
       label: "Uscite del mese",
@@ -373,6 +381,8 @@ function StatsGrid({
       positive: false,
       micro: "spark" as const,
       icon: null,
+      to: "/transactions" as const,
+      search: { kind: "expense", month: "current" },
     },
     {
       label: "Abbonamenti",
@@ -381,15 +391,19 @@ function StatsGrid({
       positive: true,
       micro: "ring" as const,
       icon: null,
+      to: "/subscriptions" as const,
+      search: {} as Record<string, string>,
     },
   ];
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
 
       {stats.map((s) => (
-        <div
+        <Link
           key={s.label}
-          className="rounded-2xl border border-border bg-card p-6 space-y-3 transition-colors hover:border-mint/20"
+          to={s.to}
+          search={s.search as never}
+          className="block rounded-2xl border border-border bg-card p-6 space-y-3 transition-colors hover:border-mint/30 focus:outline-none focus:ring-1 focus:ring-mint"
         >
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground flex items-center gap-1.5">
@@ -409,7 +423,7 @@ function StatsGrid({
             </span>
           </div>
           <StatMicroViz kind={s.micro} />
-        </div>
+        </Link>
       ))}
     </div>
   );
