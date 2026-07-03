@@ -38,7 +38,7 @@ export const Route = createFileRoute("/_authenticated/goals")({
 });
 
 function GoalsPage() {
-  const { goals, transactions, subscriptions, removeGoal, updateGoal } =
+  const { goals, transactions, subscriptions, removeGoal, updateGoal, addTransaction } =
     useFinance();
 
   // Aggregati economici (mese corrente)
@@ -110,6 +110,16 @@ function GoalsPage() {
                   toast.success("Obiettivo eliminato");
                 }}
                 onUpdate={updateGoal}
+                onSetAside={(amount) => {
+                  void addTransaction({
+                    kind: "expense",
+                    amount,
+                    merchant: `Accantonamento: ${g.title}`,
+                    category: "Risparmio",
+                    date: new Date().toISOString(),
+                    source: "manual",
+                  });
+                }}
               />
             ))}
           </div>
@@ -156,11 +166,13 @@ function GoalCard({
   finance,
   onDelete,
   onUpdate,
+  onSetAside,
 }: {
   goal: Goal;
   finance: FinanceCtx;
   onDelete: () => void;
   onUpdate: (id: string, patch: Partial<Goal>) => void;
+  onSetAside: (amount: number) => void;
 }) {
   const planFn = useServerFn(getGoalPlan);
   const [plan, setPlan] = useState<Plan | null>(null);
@@ -319,6 +331,7 @@ function GoalCard({
               const n = parseFloat(val.replace(",", "."));
               if (!isFinite(n) || n <= 0) return;
               onUpdate(goal.id, { savedAmount: goal.savedAmount + n });
+              onSetAside(n);
               toast.success(`+${formatEUR(n)} accantonati`);
             }}
             className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-foreground hover:bg-white/10 transition-colors"
