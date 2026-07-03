@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { formatEUR, useFinance, type Transaction } from "@/lib/finance-store";
 import { AddTransactionDialog } from "@/components/AddTransactionDialog";
+import { SwipeableRow } from "@/components/SwipeableRow";
 
 export const Route = createFileRoute("/_authenticated/transactions")({
   head: () => ({
@@ -181,10 +182,14 @@ function TransactionsPage() {
         ) : (
           <div className="space-y-2">
             {filtered.map((t) => (
-              <div
+              <SwipeableRow
                 key={t.id}
-                className="group flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:border-mint/20"
+                onDelete={() => {
+                  removeTransaction(t.id);
+                  toast.success("Movimento eliminato");
+                }}
               >
+                <div className="group flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:border-mint/20">
                 <div className="flex items-center gap-4 min-w-0">
                   <div
                     className={`size-10 rounded-full grid place-items-center italic font-display ${
@@ -221,7 +226,7 @@ function TransactionsPage() {
                     trigger={
                       <button
                         aria-label="Modifica"
-                        className="p-2 rounded-lg text-muted-foreground hover:text-mint hover:bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="p-2 rounded-lg text-muted-foreground hover:text-mint hover:bg-white/5 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                       >
                         <Pencil className="size-4" />
                       </button>
@@ -233,12 +238,13 @@ function TransactionsPage() {
                       toast.success("Movimento eliminato");
                     }}
                     aria-label="Elimina"
-                    className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="hidden md:inline-flex p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-white/5 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                   >
                     <Trash2 className="size-4" />
                   </button>
                 </div>
-              </div>
+                </div>
+              </SwipeableRow>
             ))}
           </div>
         )}
