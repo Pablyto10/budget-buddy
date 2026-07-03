@@ -226,7 +226,15 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
 
   const updateTransaction = useCallback(
     async (id: string, patch: Partial<Omit<Transaction, "id">>) => {
-      const dbPatch: Record<string, unknown> = {};
+      const dbPatch: Partial<{
+        kind: string;
+        amount: number;
+        merchant: string;
+        category: string;
+        note: string | null;
+        date: string;
+        source: string | null;
+      }> = {};
       if (patch.kind !== undefined) dbPatch.kind = patch.kind;
       if (patch.amount !== undefined) dbPatch.amount = patch.amount;
       if (patch.merchant !== undefined) dbPatch.merchant = patch.merchant;
