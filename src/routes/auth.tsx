@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { toast } from "sonner";
 
 import { supabase } from "@/integrations/supabase/client";
+import { signInWithUsername } from "@/lib/auth.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,7 +35,7 @@ const signupSchema = z.object({
 });
 
 const loginSchema = z.object({
-  email: z.string().trim().email("Email non valida"),
+  username: z.string().trim().min(1, "Inserisci lo username"),
   password: z.string().min(1, "Inserisci la password"),
 });
 
@@ -42,7 +44,7 @@ function humanizeAuthError(msg: string): string {
   if (m.includes("already registered") || m.includes("user already"))
     return "Questa email è già registrata.";
   if (m.includes("invalid login") || m.includes("invalid credentials"))
-    return "Email o password non corretti.";
+    return "USER o password non corretti.";
   if (m.includes("password")) return msg;
   if (m.includes("network") || m.includes("fetch"))
     return "Errore di connessione. Riprova.";
@@ -51,6 +53,7 @@ function humanizeAuthError(msg: string): string {
 
 function AuthPage() {
   const navigate = useNavigate();
+  const usernameLoginFn = useServerFn(signInWithUsername);
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -131,15 +134,24 @@ function AuthPage() {
   }
 
   async function handleLogin() {
-    const parsed = loginSchema.safeParse({ email, password });
+    const parsed = loginSchema.safeParse({ username, password });
     if (!parsed.success) {
       toast.error(parsed.error.issues[0].message);
       return;
     }
-    const { error } = await supabase.auth.signInWithPassword({
-      email: parsed.data.email,
-      password: parsed.data.password,
+
+    const session = await usernameLoginFn({
+      data: {
+        username: parsed.data.username,
+        password: parsed.data.password,
+      },
     });
+
+    const { error } = await supabase.auth.setSession({
+      access_token: session.accessToken,
+      refresh_token: session.refreshToken,
+    });
+
     if (error) {
       console.error("[auth] signIn error", error);
       toast.error(humanizeAuthError(error.message));
@@ -154,7 +166,7 @@ function AuthPage() {
       else await handleLogin();
     } catch (err) {
       console.error("[auth] unexpected error", err);
-      toast.error("Errore imprevisto. Riprova.");
+      toast.error(err instanceof Error ? humanizeAuthError(err.message) : "Errore imprevisto. Riprova.");
     } finally {
       setLoading(false);
     }
@@ -175,34 +187,36 @@ function AuthPage() {
         </div>
 
         <form onSubmit={onSubmit} className="mt-6 space-y-4">
-          {mode === "signup" && (
-            <div className="space-y-1.5">
-              <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                type="text"
-                autoComplete="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                maxLength={30}
-              />
+          <div className="space-y-1.5">
+            <Label htmlFor="username">{mode === "login" ? "USER" : "Username"}</Label>
+            <Input
+              id="username"
+              type="text"
+              autoComplete="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              maxLength={30}
+            />
+            {mode === "signup" && (
               <p className="text-xs text-muted-foreground">
                 3–30 caratteri, univoco. Lettere, numeri, . _ -
               </p>
+            )}
+          </div>
+          {mode === "signup" && (
+            <div className="space-y-1.5">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
           )}
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
           <div className="space-y-1.5">
             <Label htmlFor="password">Password</Label>
             <Input
