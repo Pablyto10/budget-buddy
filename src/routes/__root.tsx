@@ -11,6 +11,9 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { FinanceProvider } from "@/lib/finance-store";
+import { ProfileProvider } from "@/lib/profile-store";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -77,14 +80,27 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { name: "theme-color", content: "#080809" },
+      { title: "Money Coach AI — Il tuo coach finanziario personale" },
+      {
+        name: "description",
+        content:
+          "L'assistente finanziario intelligente che elimina il lavoro manuale. Voce, foto scontrino, chat AI — zero moduli.",
+      },
+      { property: "og:title", content: "Money Coach AI — Il tuo coach finanziario personale" },
+      {
+        property: "og:description",
+        content:
+          "Il tuo consulente finanziario personale, ogni giorno. Voce, foto, chat — zero moduli.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Money Coach AI — Il tuo coach finanziario personale" },
+      { name: "description", content: "Your Money Friend is an AI-powered personal finance assistant that simplifies money management through intuitive interaction." },
+      { property: "og:description", content: "Your Money Friend is an AI-powered personal finance assistant that simplifies money management through intuitive interaction." },
+      { name: "twitter:description", content: "Your Money Friend is an AI-powered personal finance assistant that simplifies money management through intuitive interaction." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b4359fff-3d3a-4afc-a3b0-5a1037bf1409/id-preview-add186c0--e5368652-1a92-4938-9ab5-9c3edf9b87dd.lovable.app-1782998957040.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/b4359fff-3d3a-4afc-a3b0-5a1037bf1409/id-preview-add186c0--e5368652-1a92-4938-9ab5-9c3edf9b87dd.lovable.app-1782998957040.png" },
     ],
     links: [
       {
@@ -119,8 +135,13 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <ProfileProvider>
+        <FinanceProvider>
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+          <Toaster theme="dark" position="top-center" richColors />
+        </FinanceProvider>
+      </ProfileProvider>
     </QueryClientProvider>
   );
 }
