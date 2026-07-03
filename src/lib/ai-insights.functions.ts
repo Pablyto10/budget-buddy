@@ -61,8 +61,8 @@ const GoalLite = z.object({
 const InsightSchema = z.object({
   headline: z.string(), // frase breve, tono coach ("Ogni sabato spendi 3× di più...")
   body: z.string(), // spiegazione + azione concreta con numeri
-  savingEstimate: z.number().optional(), // € risparmiabili al mese
-  linkedGoal: z.string().optional(), // titolo dell'obiettivo collegato, se rilevante
+  savingEstimate: z.number().nullish().transform((v) => v ?? undefined),
+  linkedGoal: z.string().nullish().transform((v) => v ?? undefined),
 });
 
 const QuoteSchema = z.object({
