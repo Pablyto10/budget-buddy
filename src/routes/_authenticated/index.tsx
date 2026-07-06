@@ -8,6 +8,7 @@ import {
   TrendingUp,
   Target,
   Quote,
+  LineChart as LineChartIcon,
   RefreshCw,
   ArrowUpRight,
   ArrowDownLeft,
@@ -241,6 +242,13 @@ function TopNav() {
         >
           <CreditCard className="size-3.5" />
           <span className="hidden sm:inline">Abbonamenti</span>
+        </Link>
+        <Link
+          to="/forecast"
+          className="inline-flex items-center gap-1.5 rounded-full border border-mint/30 bg-mint/10 px-3 py-1.5 text-xs font-medium text-mint hover:bg-mint/20 transition-colors"
+        >
+          <LineChartIcon className="size-3.5" />
+          <span className="hidden sm:inline">Forecast</span>
         </Link>
         <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-mint/10 border border-mint/20">
           <span className="size-1.5 rounded-full bg-mint animate-pulse" />
