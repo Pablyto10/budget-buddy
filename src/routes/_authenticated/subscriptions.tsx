@@ -216,87 +216,99 @@ function SubscriptionRow({ sub }: { sub: Subscription }) {
           ? "/sett"
           : "/trim";
 
+  const actions = (
+    <>
+      <button
+        onClick={() => {
+          updateSubscription(sub.id, { active: !sub.active });
+          toast.success(sub.active ? "Messo in pausa" : "Riattivato");
+        }}
+        className="p-2 text-muted-foreground hover:text-foreground rounded-lg hover:bg-white/5"
+        aria-label={sub.active ? "Metti in pausa" : "Riattiva"}
+      >
+        {sub.active ? <Pause className="size-4" /> : <Play className="size-4" />}
+      </button>
+      <SubscriptionDialog
+        editing={sub}
+        trigger={
+          <button
+            className="p-2 text-muted-foreground hover:text-foreground rounded-lg hover:bg-white/5"
+            aria-label="Modifica"
+          >
+            <Pencil className="size-4" />
+          </button>
+        }
+      />
+      <button
+        onClick={() => {
+          removeSubscription(sub.id);
+          toast.success("Spesa ricorrente eliminata");
+        }}
+        className="p-2 text-muted-foreground hover:text-destructive rounded-lg hover:bg-white/5"
+        aria-label="Elimina"
+      >
+        <Trash2 className="size-4" />
+      </button>
+    </>
+  );
+
   return (
     <div
-      className={`group flex items-center gap-4 rounded-2xl border p-4 transition-colors ${
+      className={`group flex flex-col sm:flex-row sm:items-center gap-3 rounded-2xl border p-4 transition-colors ${
         sub.active
           ? "border-border bg-card hover:border-mint/20"
           : "border-white/5 bg-card/40 opacity-70 hover:opacity-100"
       }`}
     >
-      <div
-        className="size-11 shrink-0 rounded-xl grid place-items-center font-display text-lg font-semibold"
-        style={{
-          backgroundColor: `${sub.color ?? "#A5F3E3"}22`,
-          color: sub.color ?? "#A5F3E3",
-        }}
-        aria-hidden
-      >
-        {sub.name.charAt(0).toUpperCase()}
+      <div className="flex items-start gap-3 flex-1 min-w-0">
+        <div
+          className="size-10 sm:size-11 shrink-0 rounded-xl grid place-items-center font-display text-base sm:text-lg font-semibold"
+          style={{
+            backgroundColor: `${sub.color ?? "#A5F3E3"}22`,
+            color: sub.color ?? "#A5F3E3",
+          }}
+          aria-hidden
+        >
+          {sub.name.charAt(0).toUpperCase()}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <p className="font-medium truncate">{sub.name}</p>
+            {soon && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-soft/10 px-2 py-0.5 text-[10px] font-medium text-amber-soft shrink-0">
+                <AlertCircle className="size-3" />
+                {days <= 0 ? "Oggi" : `${days}g`}
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground flex flex-wrap items-center gap-x-1.5 gap-y-0.5 mt-0.5">
+            <CalendarClock className="size-3 shrink-0" />
+            <span className="truncate">
+              Rinnovo {format(new Date(sub.nextRenewal), "d MMM yyyy", { locale: it })}
+            </span>
+            <span className="text-muted-foreground/40">·</span>
+            <span>{sub.category}</span>
+          </p>
+        </div>
       </div>
 
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <p className="font-medium truncate">{sub.name}</p>
-          {soon && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-amber-soft/10 px-2 py-0.5 text-[10px] font-medium text-amber-soft">
-              <AlertCircle className="size-3" />
-              {days <= 0 ? "Oggi" : `${days}g`}
-            </span>
+      <div className="flex items-center justify-between sm:justify-end gap-3 sm:gap-4 pl-[3.25rem] sm:pl-0">
+        <div className="text-left sm:text-right shrink-0">
+          <p className="font-display">
+            {formatEUR(sub.amount)}
+            <span className="text-xs text-muted-foreground ml-0.5">{cycleLabel}</span>
+          </p>
+          {sub.cycle !== "monthly" && (
+            <p className="text-[10px] text-muted-foreground/70">
+              ≈ {formatEUR(monthly)}/mese
+            </p>
           )}
         </div>
-        <p className="text-xs text-muted-foreground truncate flex items-center gap-1.5 mt-0.5">
-          <CalendarClock className="size-3" />
-          Rinnovo {format(new Date(sub.nextRenewal), "d MMM yyyy", { locale: it })}
-          <span className="text-muted-foreground/40">·</span>
-          {sub.category}
-        </p>
-      </div>
 
-      <div className="text-right shrink-0">
-        <p className="font-display">
-          {formatEUR(sub.amount)}
-          <span className="text-xs text-muted-foreground ml-0.5">{cycleLabel}</span>
-        </p>
-        {sub.cycle !== "monthly" && (
-          <p className="text-[10px] text-muted-foreground/70">
-            ≈ {formatEUR(monthly)}/mese
-          </p>
-        )}
-      </div>
-
-      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
-        <button
-          onClick={() => {
-            updateSubscription(sub.id, { active: !sub.active });
-            toast.success(sub.active ? "Messo in pausa" : "Riattivato");
-          }}
-          className="p-2 text-muted-foreground hover:text-foreground rounded-lg hover:bg-white/5"
-          aria-label={sub.active ? "Metti in pausa" : "Riattiva"}
-        >
-          {sub.active ? <Pause className="size-4" /> : <Play className="size-4" />}
-        </button>
-        <SubscriptionDialog
-          editing={sub}
-          trigger={
-            <button
-              className="p-2 text-muted-foreground hover:text-foreground rounded-lg hover:bg-white/5"
-              aria-label="Modifica"
-            >
-              <Pencil className="size-4" />
-            </button>
-          }
-        />
-        <button
-          onClick={() => {
-            removeSubscription(sub.id);
-            toast.success("Spesa ricorrente eliminata");
-          }}
-          className="p-2 text-muted-foreground hover:text-destructive rounded-lg hover:bg-white/5"
-          aria-label="Elimina"
-        >
-          <Trash2 className="size-4" />
-        </button>
+        <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100 transition-opacity">
+          {actions}
+        </div>
       </div>
     </div>
   );
