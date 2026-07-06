@@ -140,6 +140,7 @@ function ForecastPage() {
   const { transactions, subscriptions } = useFinance();
   const [horizon, setHorizon] = useState<Horizon>(6);
   const [view, setView] = useState<ForecastView>("balance");
+  const [customAmount, setCustomAmount] = useState<string>("");
   const labels = VIEW_LABELS[view];
 
   const {
