@@ -82,7 +82,7 @@ function Home() {
     [subscriptions],
   );
 
-  // Bilancio attuale = entrate - uscite - abbonamenti (equivalente mensile)
+  // Bilancio attuale = entrate - uscite - spese ricorrenti (equivalente mensile)
   const totalBalance = useMemo(() => {
     const tx = transactions.reduce(
       (s, t) => s + (t.kind === "income" ? t.amount : -t.amount),
@@ -241,7 +241,7 @@ function TopNav() {
           className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-white/10 transition-colors"
         >
           <CreditCard className="size-3.5" />
-          <span className="hidden sm:inline">Abbonamenti</span>
+          <span className="hidden sm:inline">Spese ricorrenti</span>
         </Link>
         <Link
           to="/forecast"
@@ -340,8 +340,8 @@ function CoachCard({
           {headline.split(highlight)[1] ?? ""}"
         </h1>
         <p className="max-w-xl text-lg text-muted-foreground leading-relaxed">
-          I tuoi abbonamenti attivi pesano {formatEUR(subsMonthly)}/mese
-          ({formatEUR(subsMonthly * 12)} l'anno). Rivedili per liberare
+          Le tue spese ricorrenti attive pesano {formatEUR(subsMonthly)}/mese
+          ({formatEUR(subsMonthly * 12)} l'anno). Rivedile per liberare
           spazio di risparmio.
         </p>
         <div className="flex flex-wrap gap-3 mt-2">
@@ -357,7 +357,7 @@ function CoachCard({
             to="/subscriptions"
             className="btn-secondary-premium inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold"
           >
-            Gestisci abbonamenti
+            Gestisci spese ricorrenti
             <ArrowUpRight className="size-4" strokeWidth={2.5} />
           </Link>
         </div>
@@ -448,7 +448,7 @@ function StatsGrid({
       accent: "cat-expense",
     },
     {
-      label: "Abbonamenti",
+      label: "Spese ricorrenti",
       value: formatEUR(subsMonthly),
       delta: "al mese",
       positive: true,
