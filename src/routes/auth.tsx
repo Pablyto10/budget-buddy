@@ -230,7 +230,7 @@ function AuthPage() {
           {heading}
         </h1>
         <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
-          Il tuo coach finanziario personale: traccia entrate, uscite e obiettivi e scopri quanto puoi risparmiare ogni mese.
+          Il tuo coach finanziario personale, potenziato dall'AI: traccia entrate, uscite e obiettivi e scopri quanto puoi risparmiare ogni mese.
         </p>
       </div>
 

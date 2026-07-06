@@ -53,7 +53,7 @@ import logoAsset from "@/assets/wheres-my-budget-logo.png.asset.json";
 export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
-      { title: "Where's My Budget — Il tuo coach finanziario personale" },
+      { title: "Where's My Budget — Coach finanziario personale con AI" },
       {
         name: "description",
         content:
