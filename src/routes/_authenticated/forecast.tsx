@@ -453,7 +453,7 @@ function ForecastPage() {
             <h2 className="font-display text-lg">Mese per mese</h2>
           </div>
           <div className="divide-y divide-white/5">
-            {chartData.slice(1).map((row) => (
+            {chartData.slice(1).map((row: ChartRow) => (
               <div key={row.month} className="flex items-center justify-between px-6 py-3 text-sm">
                 <span className="capitalize text-muted-foreground">{row.label}</span>
                 <span className={row.bilancio >= 0 ? "text-foreground font-medium" : "text-rose-soft font-medium"}>
