@@ -344,6 +344,12 @@ function ForecastPage() {
           </div>
         </div>
 
+        {viewEmpty ? (
+          <div className="rounded-2xl border border-white/[0.06] bg-card p-5 text-sm text-muted-foreground">
+            {labels.empty}
+          </div>
+        ) : null}
+
         {/* KPI cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <KpiCard
