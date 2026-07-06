@@ -121,6 +121,21 @@ const VIEW_LABELS: Record<
   },
 };
 
+type ChartRow = { label: string; bilancio: number; month: number };
+
+function buildChartData(start: number, step: number, months: number): ChartRow[] {
+  const now = new Date();
+  const fmt = new Intl.DateTimeFormat("it-IT", { month: "short", year: "2-digit" });
+  const rows: ChartRow[] = [{ label: "Oggi", bilancio: Math.round(start), month: 0 }];
+  let running = start;
+  for (let i = 1; i <= months; i++) {
+    running += step;
+    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    rows.push({ label: fmt.format(d), bilancio: Math.round(running), month: i });
+  }
+  return rows;
+}
+
 function ForecastPage() {
   const { transactions, subscriptions } = useFinance();
   const [horizon, setHorizon] = useState<Horizon>(6);
