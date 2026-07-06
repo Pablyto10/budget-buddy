@@ -27,17 +27,17 @@ import { SubscriptionDialog } from "@/components/SubscriptionDialog";
 export const Route = createFileRoute("/_authenticated/subscriptions")({
   head: () => ({
     meta: [
-      { title: "Abbonamenti — Where's My Budget" },
+      { title: "Spese ricorrenti — Where's My Budget" },
       {
         name: "description",
         content:
-          "Monitora e gestisci tutti i tuoi abbonamenti: importi, date di rinnovo, costo mensile equivalente e suggerimenti AI per risparmiare.",
+          "Monitora e gestisci tutte le tue spese ricorrenti: importi, date di rinnovo, costo mensile equivalente e suggerimenti AI per risparmiare.",
       },
-      { property: "og:title", content: "Abbonamenti — Where's My Budget" },
+      { property: "og:title", content: "Spese ricorrenti — Where's My Budget" },
       {
         property: "og:description",
         content:
-          "Un solo posto per vedere quanto ti costano davvero i tuoi abbonamenti — e cosa cancellare.",
+          "Un solo posto per vedere quanto ti costano davvero le tue spese ricorrenti — e cosa cancellare.",
       },
     ],
   }),
@@ -75,11 +75,11 @@ function SubscriptionsPage() {
           <ArrowLeft className="size-4" />
           Home
         </Link>
-        <span className="font-display text-lg">Abbonamenti</span>
+        <span className="font-display text-lg">Spese ricorrenti</span>
         <SubscriptionDialog
           trigger={
             <button
-              aria-label="Aggiungi abbonamento"
+              aria-label="Aggiungi spesa ricorrente"
               className="inline-flex items-center gap-1.5 rounded-full bg-mint px-3 py-1.5 text-xs font-semibold text-mint-foreground hover:scale-[1.03] transition-transform"
             >
               <Plus className="size-3.5" strokeWidth={2.5} />
