@@ -139,8 +139,9 @@ function ForecastPage() {
             Dove sarà il tuo bilancio tra {horizon} mesi?
           </h1>
           <p className="text-muted-foreground max-w-2xl">
-            Stimiamo la tua situazione futura in base a entrate e uscite medie
-            degli ultimi {monthsUsed} mesi, sommando gli abbonamenti attivi.
+            Partiamo dal tuo bilancio di oggi e ogni mese aggiungiamo le entrate
+            medie e togliamo uscite e abbonamenti. Così vedi dove finirai se
+            continui con lo stesso ritmo degli ultimi {monthsUsed} mesi.
           </p>
         </header>
 
@@ -163,16 +164,29 @@ function ForecastPage() {
 
         {/* KPI cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <KpiCard label="Bilancio attuale" value={formatEUR(currentBalance)} />
           <KpiCard
-            label={`Bilancio tra ${horizon} mesi`}
+            label="Bilancio oggi"
+            value={formatEUR(currentBalance)}
+            hint="Quanto hai adesso"
+          />
+          <KpiCard
+            label={`Bilancio previsto tra ${horizon} mesi`}
             value={formatEUR(projected)}
+            hint={
+              projected >= 0
+                ? "Quanto avresti da parte se non cambi nulla"
+                : "Saresti in rosso di questa cifra"
+            }
             accentPositive={projected >= 0}
           />
           <KpiCard
-            label="Variazione mensile netta"
+            label="Quanto risparmi (o perdi) ogni mese"
             value={`${monthlyNet >= 0 ? "+" : ""}${formatEUR(monthlyNet)}`}
-            hint={monthlyNet >= 0 ? "in crescita" : "in calo"}
+            hint={
+              monthlyNet >= 0
+                ? "Ogni mese il bilancio cresce di questa cifra"
+                : "Ogni mese il bilancio cala di questa cifra"
+            }
             accentPositive={monthlyNet >= 0}
             icon={
               monthlyNet >= 0 ? (
@@ -242,14 +256,34 @@ function ForecastPage() {
 
         {/* Breakdown */}
         <div className="rounded-2xl border border-white/[0.06] bg-card p-6 space-y-4">
-          <h2 className="font-display text-lg">Ipotesi mensili</h2>
+          <div>
+            <h2 className="font-display text-lg">Come calcoliamo il tuo mese tipo</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Media di entrate e uscite degli ultimi {monthsUsed} mesi + costo
+              mensile degli abbonamenti attivi.
+            </p>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-            <Row label="Entrate medie" value={formatEUR(avgIncome)} tone="mint" />
-            <Row label="Uscite medie" value={`- ${formatEUR(avgExpense)}`} tone="rose" />
-            <Row label="Abbonamenti" value={`- ${formatEUR(subsMonthly)}`} tone="rose" />
+            <Row
+              label="Entrate medie / mese"
+              value={`+ ${formatEUR(avgIncome)}`}
+              tone="mint"
+            />
+            <Row
+              label="Uscite medie / mese"
+              value={`- ${formatEUR(avgExpense)}`}
+              tone="rose"
+            />
+            <Row
+              label="Abbonamenti / mese"
+              value={`- ${formatEUR(subsMonthly)}`}
+              tone="rose"
+            />
           </div>
           <div className="border-t border-white/5 pt-4 flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Risultato netto</span>
+            <span className="text-sm text-muted-foreground">
+              = Quanto ti resta ogni mese
+            </span>
             <span className={`font-display text-xl ${monthlyNet >= 0 ? "text-mint" : "text-rose-soft"}`}>
               {monthlyNet >= 0 ? "+" : ""}
               {formatEUR(monthlyNet)}
