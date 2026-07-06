@@ -81,7 +81,7 @@ export function SubscriptionDialog({ trigger, editing }: Props) {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const parsed = parseFloat(amount.replace(",", "."));
-    if (!name.trim()) return toast.error("Dai un nome all'abbonamento");
+    if (!name.trim()) return toast.error("Dai un nome alla spesa ricorrente");
     if (!parsed || parsed <= 0) return toast.error("Importo non valido");
 
     const payload = {
@@ -97,10 +97,10 @@ export function SubscriptionDialog({ trigger, editing }: Props) {
 
     if (editing) {
       updateSubscription(editing.id, payload);
-      toast.success("Abbonamento aggiornato");
+      toast.success("Spesa ricorrente aggiornata");
     } else {
       addSubscription(payload);
-      toast.success("Abbonamento aggiunto", {
+      toast.success("Spesa ricorrente aggiunta", {
         description: `${payload.name} · €${parsed.toFixed(2)}`,
       });
     }
@@ -113,7 +113,7 @@ export function SubscriptionDialog({ trigger, editing }: Props) {
       <DialogContent className="sm:max-w-md bg-card border-white/10">
         <DialogHeader>
           <DialogTitle className="font-display text-xl">
-            {editing ? "Modifica abbonamento" : "Nuovo abbonamento"}
+            {editing ? "Modifica spesa ricorrente" : "Nuova spesa ricorrente"}
           </DialogTitle>
           <DialogDescription>
             Traccia importo, ciclo di rinnovo e prossima scadenza per non farti sorprendere.
@@ -197,7 +197,7 @@ export function SubscriptionDialog({ trigger, editing }: Props) {
 
           <div className="flex items-center justify-between rounded-xl border border-white/5 bg-background/50 p-3">
             <div>
-              <p className="text-sm font-medium">Abbonamento attivo</p>
+              <p className="text-sm font-medium">Spesa ricorrente attiva</p>
               <p className="text-xs text-muted-foreground">
                 Disattivalo per tenerne traccia senza contarlo nel budget.
               </p>
@@ -221,7 +221,7 @@ export function SubscriptionDialog({ trigger, editing }: Props) {
               type="submit"
               className="inline-flex w-full items-center justify-center rounded-xl bg-mint px-5 py-3 text-sm font-semibold text-mint-foreground transition-transform hover:scale-[1.01]"
             >
-              {editing ? "Salva modifiche" : "Aggiungi abbonamento"}
+              {editing ? "Salva modifiche" : "Aggiungi spesa ricorrente"}
             </button>
           </DialogFooter>
         </form>

@@ -21,13 +21,13 @@ export const Route = createFileRoute("/_authenticated/forecast")({
       {
         name: "description",
         content:
-          "Proiezione della tua situazione economica nei prossimi 3, 6 o 12 mesi in base alle tue entrate ricorrenti, spese e abbonamenti.",
+          "Proiezione della tua situazione economica nei prossimi 3, 6 o 12 mesi in base alle tue entrate ricorrenti, spese e spese ricorrenti.",
       },
       { property: "og:title", content: "Forecast — Where's My Budget" },
       {
         property: "og:description",
         content:
-          "Guarda dove sarà il tuo bilancio tra qualche mese: proiezione basata su entrate, spese e abbonamenti.",
+          "Guarda dove sarà il tuo bilancio tra qualche mese: proiezione basata su entrate, spese e spese ricorrenti.",
       },
     ],
   }),
@@ -62,20 +62,20 @@ const VIEW_LABELS: Record<
   balance: {
     title: "Dove sarà il tuo bilancio",
     intro:
-      "Partiamo dal tuo bilancio di oggi e ogni mese aggiungiamo le entrate medie e togliamo uscite e abbonamenti. Così vedi dove finirai se continui con lo stesso ritmo.",
+      "Partiamo dal tuo bilancio di oggi e ogni mese aggiungiamo le entrate medie e togliamo uscite e spese ricorrenti. Così vedi dove finirai se continui con lo stesso ritmo.",
     current: "Bilancio oggi",
     projected: "Bilancio previsto",
     monthly: "Quanto risparmi (o perdi) ogni mese",
-    hintCurrent: "Il saldo che hai in questo momento (entrate − uscite − abbonamenti)",
+    hintCurrent: "Il saldo che hai in questo momento (entrate − uscite − spese ricorrenti)",
     hintProjectedPositive: "Quanto avresti da parte se continui così",
     hintProjectedNegative: "Saresti in rosso di questa cifra",
-    hintMonthlyPositive: "Entrate − uscite − abbonamenti: ogni mese il bilancio cresce",
-    hintMonthlyNegative: "Entrate − uscite − abbonamenti: ogni mese il bilancio cala",
+    hintMonthlyPositive: "Entrate − uscite − spese ricorrenti: ogni mese il bilancio cresce",
+    hintMonthlyNegative: "Entrate − uscite − spese ricorrenti: ogni mese il bilancio cala",
     breakdownTitle: "Come calcoliamo il tuo mese tipo",
-    breakdownSubtitle: "Media di entrate e uscite degli ultimi mesi + costo mensile degli abbonamenti attivi.",
+    breakdownSubtitle: "Media di entrate e uscite degli ultimi mesi + costo mensile delle spese ricorrenti attive.",
     row1: "Entrate medie / mese",
     row2: "Uscite medie / mese",
-    row3: "Abbonamenti / mese",
+    row3: "Spese ricorrenti / mese",
     equation: "= Quanto ti resta ogni mese",
     empty: "Non hai ancora registrato movimenti.",
   },
@@ -564,7 +564,7 @@ function ForecastPage() {
             <p className="text-muted-foreground">
               Con questo ritmo, il tuo bilancio diventerebbe negativo tra circa{" "}
               <span className="text-foreground font-medium">{breakEvenMonth} mesi</span>.
-              Rivedi abbonamenti o riduci le spese ricorrenti per invertire la rotta.
+              Rivedi le spese ricorrenti o riducile per invertire la rotta.
             </p>
           </div>
         ) : null}

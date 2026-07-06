@@ -27,17 +27,17 @@ import { SubscriptionDialog } from "@/components/SubscriptionDialog";
 export const Route = createFileRoute("/_authenticated/subscriptions")({
   head: () => ({
     meta: [
-      { title: "Abbonamenti — Where's My Budget" },
+      { title: "Spese ricorrenti — Where's My Budget" },
       {
         name: "description",
         content:
-          "Monitora e gestisci tutti i tuoi abbonamenti: importi, date di rinnovo, costo mensile equivalente e suggerimenti AI per risparmiare.",
+          "Monitora e gestisci tutte le tue spese ricorrenti: importi, date di rinnovo, costo mensile equivalente e suggerimenti AI per risparmiare.",
       },
-      { property: "og:title", content: "Abbonamenti — Where's My Budget" },
+      { property: "og:title", content: "Spese ricorrenti — Where's My Budget" },
       {
         property: "og:description",
         content:
-          "Un solo posto per vedere quanto ti costano davvero i tuoi abbonamenti — e cosa cancellare.",
+          "Un solo posto per vedere quanto ti costano davvero le tue spese ricorrenti — e cosa cancellare.",
       },
     ],
   }),
@@ -75,11 +75,11 @@ function SubscriptionsPage() {
           <ArrowLeft className="size-4" />
           Home
         </Link>
-        <span className="font-display text-lg">Abbonamenti</span>
+        <span className="font-display text-lg">Spese ricorrenti</span>
         <SubscriptionDialog
           trigger={
             <button
-              aria-label="Aggiungi abbonamento"
+              aria-label="Aggiungi spesa ricorrente"
               className="inline-flex items-center gap-1.5 rounded-full bg-mint px-3 py-1.5 text-xs font-semibold text-mint-foreground hover:scale-[1.03] transition-transform"
             >
               <Plus className="size-3.5" strokeWidth={2.5} />
@@ -124,7 +124,7 @@ function SubscriptionsPage() {
             </div>
             <div className="space-y-1">
               <h3 className="font-display italic text-lg leading-tight">
-                "Hai {paused.length} abbonament{paused.length === 1 ? "o" : "i"} in pausa che ti costa{paused.length === 1 ? "" : "no"} {formatEUR(wasted)}/mese."
+                "Hai {paused.length} spesa{paused.length === 1 ? "" : "e"} ricorrente{paused.length === 1 ? "" : "i"} in pausa che ti costa{paused.length === 1 ? "" : "no"} {formatEUR(wasted)}/mese."
               </h3>
               <p className="text-sm text-muted-foreground">
                 Cancellandoli risparmieresti {formatEUR(wasted * 12)} in un anno.
@@ -138,7 +138,7 @@ function SubscriptionsPage() {
           <div className="flex items-center justify-between">
             <h2 className="font-display text-lg">Attivi</h2>
             <span className="text-xs text-muted-foreground">
-              {active.length} abbonament{active.length === 1 ? "o" : "i"}
+              {active.length} spesa{active.length === 1 ? "" : "e"} ricorrente{active.length === 1 ? "" : "i"}
             </span>
           </div>
 
@@ -290,7 +290,7 @@ function SubscriptionRow({ sub }: { sub: Subscription }) {
         <button
           onClick={() => {
             removeSubscription(sub.id);
-            toast.success("Abbonamento eliminato");
+            toast.success("Spesa ricorrente eliminata");
           }}
           className="p-2 text-muted-foreground hover:text-destructive rounded-lg hover:bg-white/5"
           aria-label="Elimina"
@@ -305,15 +305,15 @@ function SubscriptionRow({ sub }: { sub: Subscription }) {
 function EmptyState() {
   return (
     <div className="rounded-3xl border border-dashed border-white/10 p-10 text-center">
-      <p className="font-display text-lg mb-1">Nessun abbonamento attivo</p>
+      <p className="font-display text-lg mb-1">Nessuna spesa ricorrente attiva</p>
       <p className="text-sm text-muted-foreground mb-4">
-        Aggiungi il primo per iniziare a monitorare le spese ricorrenti.
+        Aggiungi la prima per iniziare a monitorare le spese ricorrenti.
       </p>
       <SubscriptionDialog
         trigger={
           <button className="inline-flex items-center gap-2 rounded-xl bg-mint px-4 py-2 text-sm font-semibold text-mint-foreground hover:scale-[1.02] transition-transform">
             <Plus className="size-4" strokeWidth={2.5} />
-            Aggiungi abbonamento
+            Aggiungi spesa ricorrente
           </button>
         }
       />
