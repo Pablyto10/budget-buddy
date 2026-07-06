@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -10,12 +10,25 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import logoAsset from "@/assets/wheres-my-budget-logo.png.asset.json";
 
 export const Route = createFileRoute("/auth")({
+  head: () => ({
+    meta: [
+      { title: "Accedi — Where's My Budget" },
+      {
+        name: "description",
+        content:
+          "Entra nel tuo coach finanziario personale e prendi il controllo di entrate, uscite e obiettivi.",
+      },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: AuthPage,
 });
 
-const passwordSchema = z
+export const passwordSchema = z
   .string()
   .min(10, "Minimo 10 caratteri")
   .regex(/\d/, "Deve contenere almeno 1 numero")
@@ -39,7 +52,7 @@ const loginSchema = z.object({
   password: z.string().min(1, "Inserisci la password"),
 });
 
-function humanizeAuthError(msg: string): string {
+export function humanizeAuthError(msg: string): string {
   const m = msg.toLowerCase();
   if (m.includes("already registered") || m.includes("user already"))
     return "Questa email è già registrata.";
@@ -51,13 +64,16 @@ function humanizeAuthError(msg: string): string {
   return msg;
 }
 
+type AuthMode = "login" | "signup" | "forgot";
+
 function AuthPage() {
   const navigate = useNavigate();
   const usernameLoginFn = useServerFn(signInWithUsername);
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [mode, setMode] = useState<AuthMode>("login");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [forgotEmail, setForgotEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -77,9 +93,6 @@ function AuthPage() {
       return;
     }
 
-    // Crea l'utente. Il trigger handle_new_user verifica lo username
-    // e inserisce il profilo nella stessa transazione: se lo username è
-    // già preso, l'utente auth NON viene creato (rollback).
     const { data, error } = await supabase.auth.signUp({
       email: parsed.data.email,
       password: parsed.data.password,
@@ -92,8 +105,6 @@ function AuthPage() {
     if (error) {
       console.error("[auth] signUp error", error);
       const msg = error.message.toLowerCase();
-      // Il trigger solleva "USERNAME_TAKEN" quando lo username è duplicato;
-      // Supabase lo restituisce come generica "database error saving new user".
       if (msg.includes("username_taken") || msg.includes("database error")) {
         toast.error("Questo username è già in uso.");
         return;
@@ -102,8 +113,6 @@ function AuthPage() {
       return;
     }
 
-    // Se la conferma email è attiva, non c'è sessione: mostra messaggio
-    // e non provare a leggere il profilo (RLS lo bloccherebbe).
     if (data.user && !data.session) {
       toast.success(
         `Account creato! Controlla la tua email (${parsed.data.email}) per confermare.`,
@@ -111,7 +120,6 @@ function AuthPage() {
       return;
     }
 
-    // 3) Verifica che il profilo esista davvero (solo se già autenticato)
     if (data.user) {
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
@@ -158,6 +166,28 @@ function AuthPage() {
     }
   }
 
+  async function handleForgot(e: React.FormEvent) {
+    e.preventDefault();
+    const parsed = z.string().trim().email("Email non valida").safeParse(forgotEmail);
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0].message);
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(parsed.data, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setLoading(false);
+    if (error) {
+      console.error("[auth] resetPassword error", error);
+      toast.error(humanizeAuthError(error.message));
+      return;
+    }
+    toast.success("Ti abbiamo inviato un'email per reimpostare la password.");
+    setMode("login");
+    setForgotEmail("");
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -166,110 +196,199 @@ function AuthPage() {
       else await handleLogin();
     } catch (err) {
       console.error("[auth] unexpected error", err);
-      toast.error(err instanceof Error ? humanizeAuthError(err.message) : "Errore imprevisto. Riprova.");
+      toast.error(
+        err instanceof Error
+          ? humanizeAuthError(err.message)
+          : "Errore imprevisto. Riprova.",
+      );
     } finally {
       setLoading(false);
     }
   }
 
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
-      <Card className="w-full max-w-md p-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-semibold text-foreground">
-            {mode === "login" ? "Accedi" : "Crea il tuo account"}
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {mode === "login"
-              ? "Entra nel tuo Where's My Budget"
-              : "Il tuo coach finanziario personale"}
-          </p>
-        </div>
+  const heading =
+    mode === "login"
+      ? "Bentornato"
+      : mode === "signup"
+        ? "Inizia da qui"
+        : "Recupera l'accesso";
 
-        <form onSubmit={onSubmit} className="mt-6 space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="username">{mode === "login" ? "USER" : "Username"}</Label>
-            <Input
-              id="username"
-              type="text"
-              autoComplete="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              maxLength={30}
-            />
-            {mode === "signup" && (
-              <p className="text-xs text-muted-foreground">
-                3–30 caratteri, univoco. Lettere, numeri, . _ -
-              </p>
-            )}
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12">
+      <div className="mb-8 flex flex-col items-center text-center">
+        <div className="flex items-center gap-3">
+          <img
+            src={logoAsset.url}
+            alt="Logo Where's My Budget"
+            className="h-14 w-14 rounded-2xl bg-card p-2 shadow-sm"
+          />
+          <span className="font-display text-2xl font-semibold tracking-tight text-foreground">
+            Where's My Budget
+          </span>
+        </div>
+        <h1 className="mt-5 font-display text-3xl font-bold text-foreground">
+          {heading}
+        </h1>
+        <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
+          Il tuo coach finanziario personale: traccia entrate, uscite e obiettivi e scopri quanto puoi risparmiare ogni mese.
+        </p>
+      </div>
+
+      <Card className="w-full max-w-md p-6 sm:p-8">
+        {mode !== "forgot" && (
+          <div className="mb-6 flex rounded-xl bg-muted p-1">
+            <button
+              type="button"
+              onClick={() => setMode("login")}
+              className={cn(
+                "flex-1 rounded-lg py-2 text-sm font-medium transition-all",
+                mode === "login"
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              Accedi
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("signup")}
+              className={cn(
+                "flex-1 rounded-lg py-2 text-sm font-medium transition-all",
+                mode === "signup"
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              Registrati
+            </button>
           </div>
-          {mode === "signup" && (
+        )}
+
+        {mode === "forgot" ? (
+          <form onSubmit={handleForgot} className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="forgot-email">Email</Label>
               <Input
-                id="email"
+                id="forgot-email"
                 type="email"
                 autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={forgotEmail}
+                onChange={(e) => setForgotEmail(e.target.value)}
                 required
               />
             </div>
-          )}
-          <div className="space-y-1.5">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              autoComplete={mode === "signup" ? "new-password" : "current-password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            {mode === "signup" && (
-              <p className="text-xs text-muted-foreground">
-                Almeno 10 caratteri, 1 numero e 1 simbolo.
-              </p>
-            )}
-          </div>
-
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Attendi…" : mode === "login" ? "Accedi" : "Crea account"}
-          </Button>
-        </form>
-
-        <div className="mt-6 text-center text-sm text-muted-foreground">
-          {mode === "login" ? (
-            <>
-              Non hai un account?{" "}
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Attendi…" : "Invia link di recupero"}
+            </Button>
+            <div className="text-center">
               <button
                 type="button"
-                className="font-medium text-foreground underline"
-                onClick={() => setMode("signup")}
-              >
-                Registrati
-              </button>
-            </>
-          ) : (
-            <>
-              Hai già un account?{" "}
-              <button
-                type="button"
-                className="font-medium text-foreground underline"
+                className="text-sm text-muted-foreground hover:text-foreground"
                 onClick={() => setMode("login")}
               >
-                Accedi
+                ← Torna all'accesso
               </button>
-            </>
-          )}
-        </div>
+            </div>
+          </form>
+        ) : (
+          <form onSubmit={onSubmit} className="space-y-4">
+            <div className="space-y-1.5">
+              <Label htmlFor="username">
+                {mode === "login" ? "USER" : "Username"}
+              </Label>
+              <Input
+                id="username"
+                type="text"
+                autoComplete="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                maxLength={30}
+              />
+              {mode === "signup" && (
+                <p className="text-xs text-muted-foreground">
+                  3–30 caratteri, univoco. Lettere, numeri, . _ -
+                </p>
+              )}
+            </div>
+            {mode === "signup" && (
+              <div className="space-y-1.5">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+            )}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                {mode === "login" && (
+                  <button
+                    type="button"
+                    className="text-sm font-medium text-primary hover:underline"
+                    onClick={() => setMode("forgot")}
+                  >
+                    Password dimenticata?
+                  </button>
+                )}
+              </div>
+              <Input
+                id="password"
+                type="password"
+                autoComplete={
+                  mode === "signup" ? "new-password" : "current-password"
+                }
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              {mode === "signup" && (
+                <p className="text-xs text-muted-foreground">
+                  Almeno 10 caratteri, 1 numero e 1 simbolo.
+                </p>
+              )}
+            </div>
 
-        <div className="mt-4 text-center">
-          <Link to="/" className="text-xs text-muted-foreground hover:text-foreground">
-            ← Torna alla home
-          </Link>
-        </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading
+                ? "Attendi…"
+                : mode === "login"
+                  ? "Accedi"
+                  : "Crea account"}
+            </Button>
+
+            <div className="text-center text-sm text-muted-foreground">
+              {mode === "login" ? (
+                <>
+                  Non hai un account?{" "}
+                  <button
+                    type="button"
+                    className="font-medium text-foreground underline"
+                    onClick={() => setMode("signup")}
+                  >
+                    Registrati
+                  </button>
+                </>
+              ) : (
+                <>
+                  Hai già un account?{" "}
+                  <button
+                    type="button"
+                    className="font-medium text-foreground underline"
+                    onClick={() => setMode("login")}
+                  >
+                    Accedi
+                  </button>
+                </>
+              )}
+            </div>
+          </form>
+        )}
       </Card>
     </div>
   );
