@@ -396,8 +396,8 @@ function ForecastPage() {
               <LineChart data={chartData} margin={{ top: 10, right: 12, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="forecast-line" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#22C55E" stopOpacity={0.4} />
-                    <stop offset="100%" stopColor="#22C55E" stopOpacity={1} />
+                    <stop offset="0%" stopColor={chartColor} stopOpacity={0.4} />
+                    <stop offset="100%" stopColor={chartColor} stopOpacity={1} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
@@ -422,7 +422,7 @@ function ForecastPage() {
                     borderRadius: 12,
                     fontSize: 12,
                   }}
-                  formatter={(v: number) => [formatEUR(v), "Bilancio"]}
+                  formatter={(v: number) => [formatEUR(v), tooltipLabel]}
                 />
                 <ReferenceLine y={0} stroke="rgba(244,63,94,0.4)" strokeDasharray="4 4" />
                 <Line
@@ -430,7 +430,7 @@ function ForecastPage() {
                   dataKey="bilancio"
                   stroke="url(#forecast-line)"
                   strokeWidth={2.5}
-                  dot={{ fill: "#22C55E", r: 3 }}
+                  dot={{ fill: chartColor, r: 3 }}
                   activeDot={{ r: 5 }}
                 />
               </LineChart>
