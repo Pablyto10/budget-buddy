@@ -35,10 +35,97 @@ export const Route = createFileRoute("/_authenticated/forecast")({
 });
 
 type Horizon = 3 | 6 | 12;
+type ForecastView = "balance" | "Risparmio" | "Fondo emergenza";
+
+const VIEW_LABELS: Record<
+  ForecastView,
+  {
+    title: string;
+    intro: string;
+    current: string;
+    projected: string;
+    monthly: string;
+    hintCurrent: string;
+    hintProjectedPositive: string;
+    hintProjectedNegative: string;
+    hintMonthlyPositive: string;
+    hintMonthlyNegative: string;
+    breakdownTitle: string;
+    breakdownSubtitle: string;
+    row1: string;
+    row2: string;
+    row3: string;
+    equation: string;
+    empty: string;
+  }
+> = {
+  balance: {
+    title: "Dove sarà il tuo bilancio",
+    intro:
+      "Partiamo dal tuo bilancio di oggi e ogni mese aggiungiamo le entrate medie e togliamo uscite e abbonamenti. Così vedi dove finirai se continui con lo stesso ritmo.",
+    current: "Bilancio oggi",
+    projected: "Bilancio previsto",
+    monthly: "Quanto risparmi (o perdi) ogni mese",
+    hintCurrent: "Il saldo che hai in questo momento (entrate − uscite − abbonamenti)",
+    hintProjectedPositive: "Quanto avresti da parte se continui così",
+    hintProjectedNegative: "Saresti in rosso di questa cifra",
+    hintMonthlyPositive: "Entrate − uscite − abbonamenti: ogni mese il bilancio cresce",
+    hintMonthlyNegative: "Entrate − uscite − abbonamenti: ogni mese il bilancio cala",
+    breakdownTitle: "Come calcoliamo il tuo mese tipo",
+    breakdownSubtitle: "Media di entrate e uscite degli ultimi mesi + costo mensile degli abbonamenti attivi.",
+    row1: "Entrate medie / mese",
+    row2: "Uscite medie / mese",
+    row3: "Abbonamenti / mese",
+    equation: "= Quanto ti resta ogni mese",
+    empty: "Non hai ancora registrato movimenti.",
+  },
+  Risparmio: {
+    title: "Dove sarà il tuo risparmio",
+    intro:
+      "Partiamo da quanto hai già messo da parte e ogni mese aggiungiamo la media dei versamenti in categoria Risparmio. Così vedi quanto accumuli se continui così.",
+    current: "Risparmio accumulato oggi",
+    projected: "Risparmio previsto",
+    monthly: "Quanto metti da parte ogni mese",
+    hintCurrent: "Tutti i versamenti in categoria Risparmio registrati finora",
+    hintProjectedPositive: "Quanto avresti da parte se continui a versare la stessa media",
+    hintProjectedNegative: "Proiezione negativa: controlla i versamenti passati",
+    hintMonthlyPositive: "Media dei versamenti Risparmio degli ultimi mesi",
+    hintMonthlyNegative: "Media dei prelievi/versamenti negativi: il risparmio cala",
+    breakdownTitle: "Come calcoliamo il tuo risparmio",
+    breakdownSubtitle: "Media dei versamenti mensili in categoria Risparmio + totale già versato.",
+    row1: "Versamenti medi / mese",
+    row2: "Totale versato oggi",
+    row3: "Proiezione",
+    equation: "= Quanto metti da parte ogni mese",
+    empty: "Non hai ancora registrato versamenti in categoria Risparmio.",
+  },
+  "Fondo emergenza": {
+    title: "Dove sarà il tuo fondo emergenza",
+    intro:
+      "Partiamo da quanto hai già versato nel fondo emergenza e ogni mese aggiungiamo la media dei versamenti in quella categoria. Così vedi quanto avrai a disposizione in caso di emergenza.",
+    current: "Fondo emergenza oggi",
+    projected: "Fondo emergenza previsto",
+    monthly: "Quanto versi ogni mese",
+    hintCurrent: "Tutti i versamenti in categoria Fondo emergenza registrati finora",
+    hintProjectedPositive: "Quanto avresti nel fondo se continui a versare la stessa media",
+    hintProjectedNegative: "Proiezione negativa: controlla i versamenti passati",
+    hintMonthlyPositive: "Media dei versamenti Fondo emergenza degli ultimi mesi",
+    hintMonthlyNegative: "Media dei prelievi/versamenti negativi: il fondo cala",
+    breakdownTitle: "Come calcoliamo il tuo fondo emergenza",
+    breakdownSubtitle: "Media dei versamenti mensili in categoria Fondo emergenza + totale già versato.",
+    row1: "Versamenti medi / mese",
+    row2: "Totale versato oggi",
+    row3: "Proiezione",
+    equation: "= Quanto versi ogni mese",
+    empty: "Non hai ancora registrato versamenti in categoria Fondo emergenza.",
+  },
+};
 
 function ForecastPage() {
   const { transactions, subscriptions } = useFinance();
   const [horizon, setHorizon] = useState<Horizon>(6);
+  const [view, setView] = useState<ForecastView>("balance");
+  const labels = VIEW_LABELS[view];
 
   const subsMonthly = useMemo(
     () =>
