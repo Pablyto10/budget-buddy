@@ -441,32 +441,53 @@ function ForecastPage() {
         {/* Breakdown */}
         <div className="rounded-2xl border border-white/[0.06] bg-card p-6 space-y-4">
           <div>
-            <h2 className="font-display text-lg">Come calcoliamo il tuo mese tipo</h2>
+            <h2 className="font-display text-lg">{labels.breakdownTitle}</h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Media di entrate e uscite degli ultimi {monthsUsed} mesi + costo
-              mensile degli abbonamenti attivi.
+              {labels.breakdownSubtitle.replace("{monthsUsed}", String(monthsUsed))}
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-            <Row
-              label="Entrate medie / mese"
-              value={`+ ${formatEUR(avgIncome)}`}
-              tone="mint"
-            />
-            <Row
-              label="Uscite medie / mese"
-              value={`- ${formatEUR(avgExpense)}`}
-              tone="rose"
-            />
-            <Row
-              label="Abbonamenti / mese"
-              value={`- ${formatEUR(subsMonthly)}`}
-              tone="rose"
-            />
+            {view === "balance" ? (
+              <>
+                <Row
+                  label={labels.row1}
+                  value={`+ ${formatEUR(avgIncome)}`}
+                  tone="mint"
+                />
+                <Row
+                  label={labels.row2}
+                  value={`- ${formatEUR(avgExpense)}`}
+                  tone="rose"
+                />
+                <Row
+                  label={labels.row3}
+                  value={`- ${formatEUR(subsMonthly)}`}
+                  tone="rose"
+                />
+              </>
+            ) : (
+              <>
+                <Row
+                  label={labels.row1}
+                  value={`+ ${formatEUR(avgExpense)}`}
+                  tone="mint"
+                />
+                <Row
+                  label={labels.row2}
+                  value={`+ ${formatEUR(currentBalance)}`}
+                  tone="mint"
+                />
+                <Row
+                  label={labels.row3}
+                  value={`+ ${formatEUR(projected)}`}
+                  tone="mint"
+                />
+              </>
+            )}
           </div>
           <div className="border-t border-white/5 pt-4 flex items-center justify-between">
             <span className="text-sm text-muted-foreground">
-              = Quanto ti resta ogni mese
+              {labels.equation}
             </span>
             <span className={`font-display text-xl ${monthlyNet >= 0 ? "text-mint" : "text-rose-soft"}`}>
               {monthlyNet >= 0 ? "+" : ""}
