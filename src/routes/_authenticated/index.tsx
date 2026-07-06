@@ -22,6 +22,7 @@ import {
   Pencil,
   PiggyBank,
   ShieldAlert,
+  UserCog,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -261,6 +262,14 @@ function TopNav() {
           <span className="size-1.5 rounded-full bg-mint animate-pulse" />
           <span className="text-mint text-xs font-medium">AI online</span>
         </div>
+        <Link
+          to="/account"
+          className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-white/10 transition-colors"
+          aria-label="Account"
+        >
+          <UserCog className="size-3.5" />
+          <span className="hidden sm:inline">Account</span>
+        </Link>
         <button
           onClick={handleSignOut}
           className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-white/10 transition-colors"
