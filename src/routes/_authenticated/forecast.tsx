@@ -564,7 +564,7 @@ function ForecastPage() {
             <p className="text-muted-foreground">
               Con questo ritmo, il tuo bilancio diventerebbe negativo tra circa{" "}
               <span className="text-foreground font-medium">{breakEvenMonth} mesi</span>.
-              Rivedi abbonamenti o riduci le spese ricorrenti per invertire la rotta.
+              Rivedi le spese ricorrenti o riducile per invertire la rotta.
             </p>
           </div>
         ) : null}
