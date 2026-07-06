@@ -22,6 +22,7 @@ import {
   Pencil,
   PiggyBank,
   ShieldAlert,
+  UserCog,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useMemo, useRef, useState } from "react";

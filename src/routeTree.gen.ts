@@ -17,6 +17,7 @@ import { Route as AuthenticatedSubscriptionsRouteImport } from './routes/_authen
 import { Route as AuthenticatedGoalsRouteImport } from './routes/_authenticated/goals'
 import { Route as AuthenticatedForecastRouteImport } from './routes/_authenticated/forecast'
 import { Route as AuthenticatedCreditCardRouteImport } from './routes/_authenticated/credit-card'
+import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated/account'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -59,10 +60,16 @@ const AuthenticatedCreditCardRoute = AuthenticatedCreditCardRouteImport.update({
   path: '/credit-card',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
+  '/account': typeof AuthenticatedAccountRoute
   '/credit-card': typeof AuthenticatedCreditCardRoute
   '/forecast': typeof AuthenticatedForecastRoute
   '/goals': typeof AuthenticatedGoalsRoute
@@ -71,6 +78,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
+  '/account': typeof AuthenticatedAccountRoute
   '/credit-card': typeof AuthenticatedCreditCardRoute
   '/forecast': typeof AuthenticatedForecastRoute
   '/goals': typeof AuthenticatedGoalsRoute
@@ -82,6 +90,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/credit-card': typeof AuthenticatedCreditCardRoute
   '/_authenticated/forecast': typeof AuthenticatedForecastRoute
   '/_authenticated/goals': typeof AuthenticatedGoalsRoute
@@ -94,6 +103,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/account'
     | '/credit-card'
     | '/forecast'
     | '/goals'
@@ -102,6 +112,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
+    | '/account'
     | '/credit-card'
     | '/forecast'
     | '/goals'
@@ -112,6 +123,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/account'
     | '/_authenticated/credit-card'
     | '/_authenticated/forecast'
     | '/_authenticated/goals'
@@ -183,10 +195,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCreditCardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/account': {
+      id: '/_authenticated/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AuthenticatedAccountRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
   AuthenticatedCreditCardRoute: typeof AuthenticatedCreditCardRoute
   AuthenticatedForecastRoute: typeof AuthenticatedForecastRoute
   AuthenticatedGoalsRoute: typeof AuthenticatedGoalsRoute
@@ -196,6 +216,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAccountRoute: AuthenticatedAccountRoute,
   AuthenticatedCreditCardRoute: AuthenticatedCreditCardRoute,
   AuthenticatedForecastRoute: AuthenticatedForecastRoute,
   AuthenticatedGoalsRoute: AuthenticatedGoalsRoute,
