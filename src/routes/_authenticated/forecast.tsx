@@ -167,15 +167,15 @@ function ForecastPage() {
           <KpiCard
             label="Bilancio oggi"
             value={formatEUR(currentBalance)}
-            hint="Quanto hai adesso"
+            hint="Il saldo che hai in questo momento (entrate − uscite − abbonamenti)"
           />
           <KpiCard
             label={`Bilancio previsto tra ${horizon} mesi`}
             value={formatEUR(projected)}
             hint={
               projected >= 0
-                ? "Quanto avresti da parte se non cambi nulla"
-                : "Saresti in rosso di questa cifra"
+                ? `Quanto avresti da parte tra ${horizon} mesi se continui così`
+                : `Tra ${horizon} mesi saresti in rosso di questa cifra`
             }
             accentPositive={projected >= 0}
           />
@@ -184,8 +184,8 @@ function ForecastPage() {
             value={`${monthlyNet >= 0 ? "+" : ""}${formatEUR(monthlyNet)}`}
             hint={
               monthlyNet >= 0
-                ? "Ogni mese il bilancio cresce di questa cifra"
-                : "Ogni mese il bilancio cala di questa cifra"
+                ? `Entrate − uscite − abbonamenti: ogni mese il bilancio cresce di ${formatEUR(monthlyNet)}`
+                : `Entrate − uscite − abbonamenti: ogni mese il bilancio cala di ${formatEUR(Math.abs(monthlyNet))}`
             }
             accentPositive={monthlyNet >= 0}
             icon={
