@@ -269,7 +269,7 @@ function ForecastPage() {
         viewEmpty: monthsWithData.length === 0,
       };
     }
-  }, [transactions, subscriptions, horizon, view]);
+  }, [transactions, subscriptions, horizon, view, customAmount]);
 
   const chartColor = view === "balance" ? (positive ? "#22C55E" : "#F43F5E") : "#22C55E";
   const tooltipLabel = view === "balance" ? "Bilancio" : view;
