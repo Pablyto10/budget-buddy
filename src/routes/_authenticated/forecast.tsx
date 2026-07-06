@@ -343,27 +343,27 @@ function ForecastPage() {
         {/* KPI cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <KpiCard
-            label="Bilancio oggi"
+            label={labels.current}
             value={formatEUR(currentBalance)}
-            hint="Il saldo che hai in questo momento (entrate − uscite − abbonamenti)"
+            hint={labels.hintCurrent}
           />
           <KpiCard
-            label={`Bilancio previsto tra ${horizon} mesi`}
+            label={`${labels.projected} tra ${horizon} mesi`}
             value={formatEUR(projected)}
             hint={
               projected >= 0
-                ? `Quanto avresti da parte tra ${horizon} mesi se continui così`
-                : `Tra ${horizon} mesi saresti in rosso di questa cifra`
+                ? `${labels.hintProjectedPositive} tra ${horizon} mesi`
+                : `${labels.hintProjectedNegative}: ${formatEUR(Math.abs(projected))}`
             }
             accentPositive={projected >= 0}
           />
           <KpiCard
-            label="Quanto risparmi (o perdi) ogni mese"
+            label={labels.monthly}
             value={`${monthlyNet >= 0 ? "+" : ""}${formatEUR(monthlyNet)}`}
             hint={
               monthlyNet >= 0
-                ? `Entrate − uscite − abbonamenti: ogni mese il bilancio cresce di ${formatEUR(monthlyNet)}`
-                : `Entrate − uscite − abbonamenti: ogni mese il bilancio cala di ${formatEUR(Math.abs(monthlyNet))}`
+                ? `${labels.hintMonthlyPositive}: ${formatEUR(monthlyNet)}`
+                : `${labels.hintMonthlyNegative}: ${formatEUR(Math.abs(monthlyNet))}`
             }
             accentPositive={monthlyNet >= 0}
             icon={
@@ -379,7 +379,9 @@ function ForecastPage() {
         {/* Chart */}
         <div className="rounded-2xl border border-white/[0.06] bg-card p-4 md:p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display text-lg">Proiezione bilancio</h2>
+            <h2 className="font-display text-lg">
+              {view === "balance" ? "Proiezione bilancio" : `Proiezione ${view.toLowerCase()}`}
+            </h2>
             <span className={`text-xs font-medium ${positive ? "text-mint" : "text-rose-soft"}`}>
               {positive ? "+" : ""}
               {formatEUR(delta)} in {horizon} mesi
