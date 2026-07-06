@@ -127,90 +127,133 @@ function ForecastPage() {
   const [view, setView] = useState<ForecastView>("balance");
   const labels = VIEW_LABELS[view];
 
-  const subsMonthly = useMemo(
-    () =>
-      subscriptions
+  const {
+    currentBalance,
+    avgIncome,
+    avgExpense,
+    subsMonthly,
+    monthlyNet,
+    monthsUsed,
+    chartData,
+    projected,
+    delta,
+    positive,
+    breakEvenMonth,
+    viewEmpty,
+  } = useMemo(() => {
+    const now = new Date();
+    if (view === "balance") {
+      const subsMonthly = subscriptions
         .filter((s) => s.active)
-        .reduce((sum, s) => sum + monthlyEquivalent(s), 0),
-    [subscriptions],
-  );
+        .reduce((sum, s) => sum + monthlyEquivalent(s), 0);
 
-  // Bilancio attuale = entrate - uscite - abbonamenti mensili
-  const currentBalance = useMemo(() => {
-    const tx = transactions.reduce(
-      (s, t) => s + (t.kind === "income" ? t.amount : -t.amount),
-      0,
-    );
-    return tx - subsMonthly;
-  }, [transactions, subsMonthly]);
+      const txBalance = transactions.reduce(
+        (s, t) => s + (t.kind === "income" ? t.amount : -t.amount),
+        0,
+      );
+      const currentBalance = txBalance - subsMonthly;
 
-  // Stima entrate e uscite mensili sulla media degli ultimi 3 mesi.
-  // Le uscite escludono la categoria "Abbonamenti" per evitare doppio conteggio
-  // (gli abbonamenti sono già contati come subsMonthly).
-  const { avgIncome, avgExpense, monthsUsed } = useMemo(() => {
-    const now = new Date();
-    const buckets = new Map<string, { income: number; expense: number }>();
-    for (let i = 0; i < 3; i++) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      buckets.set(`${d.getFullYear()}-${d.getMonth()}`, { income: 0, expense: 0 });
+      const buckets = new Map<string, { income: number; expense: number }>();
+      for (let i = 0; i < 3; i++) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        buckets.set(`${d.getFullYear()}-${d.getMonth()}`, { income: 0, expense: 0 });
+      }
+      for (const t of transactions) {
+        const d = new Date(t.date);
+        const key = `${d.getFullYear()}-${d.getMonth()}`;
+        const b = buckets.get(key);
+        if (!b) continue;
+        if (t.kind === "income") b.income += t.amount;
+        else if (t.category !== "Abbonamenti") b.expense += t.amount;
+      }
+      const list = Array.from(buckets.values());
+      const incomeMonths = list.filter((b) => b.income > 0);
+      const expenseMonths = list.filter((b) => b.expense > 0);
+      const avgIncome =
+        incomeMonths.length > 0
+          ? incomeMonths.reduce((s, b) => s + b.income, 0) / incomeMonths.length
+          : 0;
+      const avgExpense =
+        expenseMonths.length > 0
+          ? expenseMonths.reduce((s, b) => s + b.expense, 0) / expenseMonths.length
+          : 0;
+      const monthsUsed = Math.max(incomeMonths.length, expenseMonths.length, 1);
+      const monthlyNet = avgIncome - avgExpense - subsMonthly;
+
+      const chartData = buildChartData(currentBalance, monthlyNet, horizon);
+      const projected = chartData[chartData.length - 1].bilancio;
+      const delta = projected - currentBalance;
+      const positive = delta >= 0;
+
+      let breakEvenMonth: number | null = null;
+      if (monthlyNet < 0 && currentBalance >= 0) {
+        breakEvenMonth = Math.ceil(currentBalance / -monthlyNet);
+      }
+
+      return {
+        currentBalance,
+        avgIncome,
+        avgExpense,
+        subsMonthly,
+        monthlyNet,
+        monthsUsed,
+        chartData,
+        projected,
+        delta,
+        positive,
+        breakEvenMonth,
+        viewEmpty: transactions.length === 0,
+      };
+    } else {
+      const category = view;
+      const currentBalance = transactions.reduce(
+        (s, t) => s + (t.kind === "expense" && t.category === category ? t.amount : 0),
+        0,
+      );
+
+      const buckets = new Map<string, number>();
+      for (let i = 0; i < 3; i++) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        buckets.set(`${d.getFullYear()}-${d.getMonth()}`, 0);
+      }
+      for (const t of transactions) {
+        if (t.kind !== "expense" || t.category !== category) continue;
+        const d = new Date(t.date);
+        const key = `${d.getFullYear()}-${d.getMonth()}`;
+        const b = buckets.get(key);
+        if (b === undefined) continue;
+        buckets.set(key, b + t.amount);
+      }
+      const list = Array.from(buckets.values());
+      const monthsWithData = list.filter((b) => b > 0);
+      const avgExpense =
+        monthsWithData.length > 0
+          ? monthsWithData.reduce((s, b) => s + b, 0) / monthsWithData.length
+          : 0;
+      const monthsUsed = Math.max(monthsWithData.length, 1);
+      const monthlyNet = avgExpense;
+
+      const chartData = buildChartData(currentBalance, monthlyNet, horizon);
+      const projected = chartData[chartData.length - 1].bilancio;
+      const delta = projected - currentBalance;
+      const positive = true;
+
+      return {
+        currentBalance,
+        avgIncome: 0,
+        avgExpense,
+        subsMonthly: 0,
+        monthlyNet,
+        monthsUsed,
+        chartData,
+        projected,
+        delta,
+        positive,
+        breakEvenMonth: null,
+        viewEmpty: monthsWithData.length === 0,
+      };
     }
-    for (const t of transactions) {
-      const d = new Date(t.date);
-      const key = `${d.getFullYear()}-${d.getMonth()}`;
-      const b = buckets.get(key);
-      if (!b) continue;
-      if (t.kind === "income") b.income += t.amount;
-      else if (t.category !== "Abbonamenti") b.expense += t.amount;
-    }
-    const list = Array.from(buckets.values());
-    // Media sui soli mesi che hanno effettivamente entrate/uscite,
-    // così un singolo stipendio inserito viene contato come mensile
-    // invece di essere diluito su 3 mesi.
-    const incomeMonths = list.filter((b) => b.income > 0);
-    const expenseMonths = list.filter((b) => b.expense > 0);
-    const income =
-      incomeMonths.length > 0
-        ? incomeMonths.reduce((s, b) => s + b.income, 0) / incomeMonths.length
-        : 0;
-    const expense =
-      expenseMonths.length > 0
-        ? expenseMonths.reduce((s, b) => s + b.expense, 0) / expenseMonths.length
-        : 0;
-    const monthsUsed = Math.max(incomeMonths.length, expenseMonths.length, 1);
-    return { avgIncome: income, avgExpense: expense, monthsUsed };
-  }, [transactions]);
-
-  const monthlyNet = avgIncome - avgExpense - subsMonthly;
-
-  const chartData = useMemo(() => {
-    const now = new Date();
-    const fmt = new Intl.DateTimeFormat("it-IT", { month: "short", year: "2-digit" });
-    const rows: {
-      label: string;
-      bilancio: number;
-      month: number;
-    }[] = [
-      { label: "Oggi", bilancio: Math.round(currentBalance), month: 0 },
-    ];
-    let running = currentBalance;
-    for (let i = 1; i <= horizon; i++) {
-      running += monthlyNet;
-      const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
-      rows.push({ label: fmt.format(d), bilancio: Math.round(running), month: i });
-    }
-    return rows;
-  }, [currentBalance, monthlyNet, horizon]);
-
-  const projected = chartData[chartData.length - 1].bilancio;
-  const delta = projected - currentBalance;
-  const positive = delta >= 0;
-
-  // Mese in cui il bilancio (se in calo) diventerebbe negativo
-  const breakEvenMonth = useMemo(() => {
-    if (monthlyNet >= 0 || currentBalance < 0) return null;
-    const months = Math.ceil(currentBalance / -monthlyNet);
-    return months;
-  }, [currentBalance, monthlyNet]);
+  }, [transactions, subscriptions, horizon, view]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
