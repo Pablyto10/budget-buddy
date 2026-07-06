@@ -270,6 +270,10 @@ function ForecastPage() {
     }
   }, [transactions, subscriptions, horizon, view]);
 
+  const chartColor = view === "balance" ? (positive ? "#22C55E" : "#F43F5E") : "#22C55E";
+  const tooltipLabel = view === "balance" ? "Bilancio" : view;
+
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <nav className="sticky top-0 z-40 flex items-center justify-between px-6 py-4 border-b border-white/5 bg-background/80 backdrop-blur-xl">
