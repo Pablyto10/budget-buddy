@@ -513,8 +513,8 @@ function ForecastPage() {
             ) : (
               <>
                 <Row
-                  label={labels.row1}
-                  value={`+ ${formatEUR(avgExpense)}`}
+                  label={customAmount ? "Versamento mensile simulato" : labels.row1}
+                  value={`+ ${formatEUR(customAmount ? Number(customAmount) : avgExpense)}`}
                   tone="mint"
                 />
                 <Row
