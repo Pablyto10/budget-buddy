@@ -247,7 +247,7 @@ function ForecastPage() {
           ? monthsWithData.reduce((s, b) => s + b, 0) / monthsWithData.length
           : 0;
       const monthsUsed = Math.max(monthsWithData.length, 1);
-      const monthlyNet = avgExpense;
+      const monthlyNet = customAmount ? Number(customAmount) : avgExpense;
 
       const chartData = buildChartData(currentBalance, monthlyNet, horizon);
       const projected = chartData[chartData.length - 1].bilancio;
