@@ -292,30 +292,52 @@ function ForecastPage() {
             Proiezione economica
           </p>
           <h1 className="font-display text-3xl md:text-4xl leading-[1.1]">
-            Dove sarà il tuo bilancio tra {horizon} mesi?
+            {labels.title} tra {horizon} mesi?
           </h1>
           <p className="text-muted-foreground max-w-2xl">
-            Partiamo dal tuo bilancio di oggi e ogni mese aggiungiamo le entrate
-            medie e togliamo uscite e abbonamenti. Così vedi dove finirai se
-            continui con lo stesso ritmo degli ultimi {monthsUsed} mesi.
+            {labels.intro}
           </p>
         </header>
 
-        {/* Horizon selector */}
-        <div className="inline-flex rounded-full border border-white/10 bg-white/5 p-1">
-          {([3, 6, 12] as Horizon[]).map((h) => (
-            <button
-              key={h}
-              onClick={() => setHorizon(h)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                horizon === h
-                  ? "bg-mint text-background"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {h} mesi
-            </button>
-          ))}
+        {/* View + horizon selectors */}
+        <div className="flex flex-wrap items-end gap-4">
+          <div className="space-y-1.5">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Vista</span>
+            <div className="inline-flex rounded-full border border-white/10 bg-white/5 p-1">
+              {(["balance", "Risparmio", "Fondo emergenza"] as ForecastView[]).map((v) => (
+                <button
+                  key={v}
+                  onClick={() => setView(v)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                    view === v
+                      ? "bg-mint text-background"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {v === "balance" ? "Bilancio" : v}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Orizzonte</span>
+            <div className="inline-flex rounded-full border border-white/10 bg-white/5 p-1">
+              {([3, 6, 12] as Horizon[]).map((h) => (
+                <button
+                  key={h}
+                  onClick={() => setHorizon(h)}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                    horizon === h
+                      ? "bg-mint text-background"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {h} mesi
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* KPI cards */}
