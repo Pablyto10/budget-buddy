@@ -345,6 +345,44 @@ function ForecastPage() {
           </div>
         </div>
 
+        {view !== "balance" ? (
+          <div className="rounded-2xl border border-white/[0.06] bg-card p-4 flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex-1 space-y-1">
+              <label htmlFor="simulated-amount" className="text-xs text-muted-foreground">
+                Simula un versamento mensile diverso
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  id="simulated-amount"
+                  type="number"
+                  min={0}
+                  step={10}
+                  value={customAmount}
+                  onChange={(e) => setCustomAmount(e.target.value)}
+                  placeholder={String(Math.round(avgExpense))}
+                  className="w-full sm:w-48 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-mint/50"
+                />
+                <span className="text-sm text-muted-foreground">€</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <p className="text-xs text-muted-foreground">
+                {customAmount
+                  ? `Proiezione calcolata con ${formatEUR(Number(customAmount))} al mese`
+                  : `Usa la media dei tuoi versamenti (${formatEUR(avgExpense)})`}
+              </p>
+              {customAmount ? (
+                <button
+                  onClick={() => setCustomAmount("")}
+                  className="text-xs text-mint hover:underline"
+                >
+                  Torna alla media
+                </button>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+
         {viewEmpty ? (
           <div className="rounded-2xl border border-white/[0.06] bg-card p-5 text-sm text-muted-foreground">
             {labels.empty}
