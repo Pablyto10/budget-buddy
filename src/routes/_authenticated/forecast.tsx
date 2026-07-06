@@ -76,10 +76,21 @@ function ForecastPage() {
       else if (t.category !== "Abbonamenti") b.expense += t.amount;
     }
     const list = Array.from(buckets.values());
-    const n = list.length || 1;
-    const income = list.reduce((s, b) => s + b.income, 0) / n;
-    const expense = list.reduce((s, b) => s + b.expense, 0) / n;
-    return { avgIncome: income, avgExpense: expense, monthsUsed: n };
+    // Media sui soli mesi che hanno effettivamente entrate/uscite,
+    // così un singolo stipendio inserito viene contato come mensile
+    // invece di essere diluito su 3 mesi.
+    const incomeMonths = list.filter((b) => b.income > 0);
+    const expenseMonths = list.filter((b) => b.expense > 0);
+    const income =
+      incomeMonths.length > 0
+        ? incomeMonths.reduce((s, b) => s + b.income, 0) / incomeMonths.length
+        : 0;
+    const expense =
+      expenseMonths.length > 0
+        ? expenseMonths.reduce((s, b) => s + b.expense, 0) / expenseMonths.length
+        : 0;
+    const monthsUsed = Math.max(incomeMonths.length, expenseMonths.length, 1);
+    return { avgIncome: income, avgExpense: expense, monthsUsed };
   }, [transactions]);
 
   const monthlyNet = avgIncome - avgExpense - subsMonthly;
