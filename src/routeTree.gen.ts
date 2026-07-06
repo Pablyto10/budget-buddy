@@ -15,6 +15,7 @@ import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedTransactionsRouteImport } from './routes/_authenticated/transactions'
 import { Route as AuthenticatedSubscriptionsRouteImport } from './routes/_authenticated/subscriptions'
 import { Route as AuthenticatedGoalsRouteImport } from './routes/_authenticated/goals'
+import { Route as AuthenticatedForecastRouteImport } from './routes/_authenticated/forecast'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -47,16 +48,23 @@ const AuthenticatedGoalsRoute = AuthenticatedGoalsRouteImport.update({
   path: '/goals',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedForecastRoute = AuthenticatedForecastRouteImport.update({
+  id: '/forecast',
+  path: '/forecast',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthRoute
+  '/forecast': typeof AuthenticatedForecastRoute
   '/goals': typeof AuthenticatedGoalsRoute
   '/subscriptions': typeof AuthenticatedSubscriptionsRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
+  '/forecast': typeof AuthenticatedForecastRoute
   '/goals': typeof AuthenticatedGoalsRoute
   '/subscriptions': typeof AuthenticatedSubscriptionsRoute
   '/transactions': typeof AuthenticatedTransactionsRoute
@@ -66,6 +74,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/forecast': typeof AuthenticatedForecastRoute
   '/_authenticated/goals': typeof AuthenticatedGoalsRoute
   '/_authenticated/subscriptions': typeof AuthenticatedSubscriptionsRoute
   '/_authenticated/transactions': typeof AuthenticatedTransactionsRoute
@@ -73,13 +82,26 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/goals' | '/subscriptions' | '/transactions'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/forecast'
+    | '/goals'
+    | '/subscriptions'
+    | '/transactions'
   fileRoutesByTo: FileRoutesByTo
-  to: '/auth' | '/goals' | '/subscriptions' | '/transactions' | '/'
+  to:
+    | '/auth'
+    | '/forecast'
+    | '/goals'
+    | '/subscriptions'
+    | '/transactions'
+    | '/'
   id:
     | '__root__'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/forecast'
     | '/_authenticated/goals'
     | '/_authenticated/subscriptions'
     | '/_authenticated/transactions'
@@ -135,10 +157,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGoalsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/forecast': {
+      id: '/_authenticated/forecast'
+      path: '/forecast'
+      fullPath: '/forecast'
+      preLoaderRoute: typeof AuthenticatedForecastRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedForecastRoute: typeof AuthenticatedForecastRoute
   AuthenticatedGoalsRoute: typeof AuthenticatedGoalsRoute
   AuthenticatedSubscriptionsRoute: typeof AuthenticatedSubscriptionsRoute
   AuthenticatedTransactionsRoute: typeof AuthenticatedTransactionsRoute
@@ -146,6 +176,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedForecastRoute: AuthenticatedForecastRoute,
   AuthenticatedGoalsRoute: AuthenticatedGoalsRoute,
   AuthenticatedSubscriptionsRoute: AuthenticatedSubscriptionsRoute,
   AuthenticatedTransactionsRoute: AuthenticatedTransactionsRoute,

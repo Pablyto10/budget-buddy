@@ -8,6 +8,7 @@ import {
   TrendingUp,
   Target,
   Quote,
+  LineChart as LineChartIcon,
   RefreshCw,
   ArrowUpRight,
   ArrowDownLeft,
