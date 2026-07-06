@@ -451,6 +451,7 @@ export const EXPENSE_CATEGORIES = [
   "Alimentari",
   "Benzina",
   "Bollette",
+  "Carta di credito",
   "Casa",
   "Debito",
   "Fondo emergenza",
