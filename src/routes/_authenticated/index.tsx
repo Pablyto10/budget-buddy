@@ -244,6 +244,13 @@ function TopNav() {
           <span className="hidden sm:inline">Spese ricorrenti</span>
         </Link>
         <Link
+          to="/credit-card"
+          className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-white/10 transition-colors"
+        >
+          <CreditCard className="size-3.5" />
+          <span className="hidden sm:inline">Carta di credito</span>
+        </Link>
+        <Link
           to="/forecast"
           className="inline-flex items-center gap-1.5 rounded-full border border-mint/30 bg-mint/10 px-3 py-1.5 text-xs font-medium text-mint hover:bg-mint/20 transition-colors"
         >
