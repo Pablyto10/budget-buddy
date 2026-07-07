@@ -23,6 +23,8 @@ import { toast } from "sonner";
 import {
   useFinance,
   SUB_CATEGORIES,
+  SUBSCRIPTION_NAMES,
+  SUBSCRIPTION_NAME_CATEGORY,
   type BillingCycle,
   type Subscription,
 } from "@/lib/finance-store";
@@ -39,39 +41,53 @@ const CYCLES: { value: BillingCycle; label: string }[] = [
   { value: "yearly", label: "Annuale" },
 ];
 
+const CUSTOM_OPTION = "Altro";
+
 export function SubscriptionDialog({ trigger, editing }: Props) {
   const { addSubscription, updateSubscription } = useFinance();
   const [open, setOpen] = useState(false);
 
-  const [name, setName] = useState("");
+  const [nameOption, setNameOption] = useState(CUSTOM_OPTION);
+  const [customName, setCustomName] = useState("");
   const [amount, setAmount] = useState("");
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
   const [nextRenewal, setNextRenewal] = useState(
     () => new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10),
   );
-  const [category, setCategory] = useState("Streaming");
+  const [categoryOption, setCategoryOption] = useState("Streaming");
+  const [customCategory, setCustomCategory] = useState("");
   const [color, setColor] = useState("#A5F3E3");
   const [active, setActive] = useState(true);
   const [note, setNote] = useState("");
 
+  const isCustomName = nameOption === CUSTOM_OPTION;
+  const autoCategory = !isCustomName ? SUBSCRIPTION_NAME_CATEGORY[nameOption] : undefined;
+  const isCustomCategory = isCustomName && categoryOption === CUSTOM_OPTION;
+
   // Precompila in modalità edit ogni volta che apri.
   useEffect(() => {
     if (open && editing) {
-      setName(editing.name);
+      const knownName = SUBSCRIPTION_NAMES.includes(editing.name) && editing.name !== CUSTOM_OPTION;
+      setNameOption(knownName ? editing.name : CUSTOM_OPTION);
+      setCustomName(knownName ? "" : editing.name);
       setAmount(String(editing.amount));
       setCycle(editing.cycle);
       setNextRenewal(editing.nextRenewal.slice(0, 10));
-      setCategory(editing.category);
+      const knownCategory = SUB_CATEGORIES.includes(editing.category) && editing.category !== CUSTOM_OPTION;
+      setCategoryOption(knownCategory ? editing.category : CUSTOM_OPTION);
+      setCustomCategory(knownCategory ? "" : editing.category);
       setColor(editing.color ?? "#A5F3E3");
       setActive(editing.active);
       setNote(editing.note ?? "");
     }
     if (open && !editing) {
-      setName("");
+      setNameOption(CUSTOM_OPTION);
+      setCustomName("");
       setAmount("");
       setCycle("monthly");
       setNextRenewal(new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10));
-      setCategory("Streaming");
+      setCategoryOption("Streaming");
+      setCustomCategory("");
       setColor("#A5F3E3");
       setActive(true);
       setNote("");
@@ -81,15 +97,18 @@ export function SubscriptionDialog({ trigger, editing }: Props) {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const parsed = parseFloat(amount.replace(",", "."));
-    if (!name.trim()) return toast.error("Dai un nome alla spesa ricorrente");
+    const finalName = (isCustomName ? customName : nameOption).trim();
+    const finalCategory = (autoCategory ?? (isCustomCategory ? customCategory : categoryOption)).trim();
+    if (!finalName) return toast.error("Dai un nome alla spesa ricorrente");
+    if (!finalCategory) return toast.error("Scegli una categoria");
     if (!parsed || parsed <= 0) return toast.error("Importo non valido");
 
     const payload = {
-      name: name.trim(),
+      name: finalName,
       amount: parsed,
       cycle,
       nextRenewal: new Date(nextRenewal).toISOString(),
-      category,
+      category: finalCategory,
       color,
       active,
       note: note.trim() || undefined,
@@ -123,14 +142,17 @@ export function SubscriptionDialog({ trigger, editing }: Props) {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-[1fr_auto] gap-3 items-end">
             <div className="space-y-2">
-              <Label htmlFor="sub-name">Nome</Label>
-              <Input
-                id="sub-name"
-                autoFocus
-                placeholder="Netflix, Spotify…"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
+              <Label>Nome</Label>
+              <Select value={nameOption} onValueChange={setNameOption}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {SUBSCRIPTION_NAMES.map((n) => (
+                    <SelectItem key={n} value={n}>{n}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="sub-color">Colore</Label>
@@ -143,6 +165,19 @@ export function SubscriptionDialog({ trigger, editing }: Props) {
               />
             </div>
           </div>
+
+          {isCustomName && (
+            <div className="space-y-2">
+              <Label htmlFor="sub-name-custom">Nome personalizzato</Label>
+              <Input
+                id="sub-name-custom"
+                autoFocus
+                placeholder="Es. Manutenzione caldaia"
+                value={customName}
+                onChange={(e) => setCustomName(e.target.value)}
+              />
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
@@ -182,18 +217,34 @@ export function SubscriptionDialog({ trigger, editing }: Props) {
             </div>
             <div className="space-y-2">
               <Label>Categoria</Label>
-              <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {SUB_CATEGORIES.map((c) => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {autoCategory ? (
+                <Input value={autoCategory} disabled readOnly />
+              ) : (
+                <Select value={categoryOption} onValueChange={setCategoryOption}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SUB_CATEGORIES.map((c) => (
+                      <SelectItem key={c} value={c}>{c}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </div>
+
+          {isCustomCategory && (
+            <div className="space-y-2">
+              <Label htmlFor="sub-category-custom">Categoria personalizzata</Label>
+              <Input
+                id="sub-category-custom"
+                placeholder="Es. Manutenzione casa"
+                value={customCategory}
+                onChange={(e) => setCustomCategory(e.target.value)}
+              />
+            </div>
+          )}
 
           <div className="flex items-center justify-between rounded-xl border border-white/5 bg-background/50 p-3">
             <div>
