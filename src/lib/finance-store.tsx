@@ -488,5 +488,8 @@ export const SUB_CATEGORIES = [
   "Fitness",
   "Gaming",
   "Utenze",
+  "Assicurazione",
+  "Bollo",
+  "Tagliando",
   "Altro",
 ];
