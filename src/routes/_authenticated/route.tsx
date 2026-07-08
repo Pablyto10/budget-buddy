@@ -11,5 +11,10 @@ export const Route = createFileRoute("/_authenticated")({
     }
     return { user: data.user };
   },
-  component: () => <Outlet />,
+  component: () => (
+    <>
+      <Outlet />
+      <FeedbackButton />
+    </>
+  ),
 });
