@@ -54,7 +54,7 @@ export function FeedbackButton() {
       <DialogTrigger asChild>
         <Button
           size="sm"
-          className="fixed bottom-6 right-6 z-50 shadow-lg gap-2 rounded-full h-11 px-4"
+          className="fixed bottom-24 right-6 z-50 shadow-lg gap-2 rounded-full h-11 px-4 sm:bottom-6"
           aria-label="Invia segnalazione"
         >
           <MessageSquarePlus className="size-4" />
