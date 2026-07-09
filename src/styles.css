@@ -219,6 +219,20 @@
   }
 }
 
+@utility btn-feedback-premium {
+  background: linear-gradient(180deg, var(--orange) 0%, color-mix(in oklab, var(--orange) 80%, black 20%) 100%);
+  color: var(--foreground);
+  box-shadow: 0 8px 24px -10px color-mix(in oklab, var(--orange) 55%, transparent),
+    0 1px 0 rgba(255, 255, 255, 0.15) inset;
+  transition: transform 200ms ease, box-shadow 200ms ease, filter 200ms ease;
+  &:hover {
+    filter: brightness(1.05);
+    box-shadow: 0 12px 32px -10px color-mix(in oklab, var(--orange) 70%, transparent),
+      0 1px 0 rgba(255, 255, 255, 0.2) inset;
+    transform: translateY(-1px);
+  }
+}
+
 /* Category accent left-borders (used on list items / cards). */
 @utility cat-income { border-left: 3px solid #22C55E; }
 @utility cat-expense { border-left: 3px solid #EF4444; }
