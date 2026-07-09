@@ -220,16 +220,16 @@ function TopNav() {
     navigate({ to: "/auth", replace: true });
   }
   return (
-    <nav className="sticky top-0 z-40 flex items-center justify-between px-6 py-4 border-b border-white/5 bg-background/80 backdrop-blur-xl">
+    <nav className="sticky top-0 z-40 flex flex-wrap items-center justify-between gap-y-3 px-6 py-4 border-b border-white/5 bg-background/80 backdrop-blur-xl">
       <div className="flex items-center gap-2.5">
         <img
           src={logoAsset.url}
           alt="Where's My Budget"
-          className="size-8 rounded-lg object-cover"
+          className="size-8 rounded-lg object-cover shrink-0"
         />
-        <span className="font-display text-lg tracking-tight">Where's My Budget</span>
+        <span className="font-display text-lg tracking-tight whitespace-nowrap">Where's My Budget</span>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 w-full justify-center sm:w-auto sm:justify-start">
         <Link
           to="/goals"
           className="inline-flex items-center justify-center sm:justify-start gap-1.5 rounded-full border border-violet-400/30 bg-violet-400/10 text-violet-300 size-11 sm:size-auto sm:px-3 sm:py-1.5 text-xs font-medium hover:bg-violet-400/20 transition-colors"
