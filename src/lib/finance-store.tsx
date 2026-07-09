@@ -27,6 +27,13 @@ export type Transaction = {
 
 export type BillingCycle = "monthly" | "yearly" | "weekly" | "quarterly";
 
+export const CYCLES: { value: BillingCycle; label: string }[] = [
+  { value: "weekly", label: "Settimanale" },
+  { value: "monthly", label: "Mensile" },
+  { value: "quarterly", label: "Trimestrale" },
+  { value: "yearly", label: "Annuale" },
+];
+
 export type Subscription = {
   id: string;
   name: string;
@@ -444,6 +451,25 @@ export function monthlyEquivalent(sub: Subscription) {
 export function daysUntil(iso: string) {
   const diff = new Date(iso).getTime() - Date.now();
   return Math.ceil(diff / 86400000);
+}
+
+export function nextRenewalDate(fromISO: string, cycle: BillingCycle) {
+  const d = new Date(fromISO);
+  switch (cycle) {
+    case "weekly":
+      d.setDate(d.getDate() + 7);
+      break;
+    case "monthly":
+      d.setMonth(d.getMonth() + 1);
+      break;
+    case "quarterly":
+      d.setMonth(d.getMonth() + 3);
+      break;
+    case "yearly":
+      d.setFullYear(d.getFullYear() + 1);
+      break;
+  }
+  return d.toISOString();
 }
 
 export const EXPENSE_CATEGORIES = [

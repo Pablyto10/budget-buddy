@@ -24,7 +24,10 @@ import {
   useFinance,
   EXPENSE_CATEGORIES,
   INCOME_CATEGORIES,
+  CYCLES,
+  nextRenewalDate,
   type TxKind,
+  type BillingCycle,
 } from "@/lib/finance-store";
 
 type Props = {
@@ -33,8 +36,10 @@ type Props = {
   transaction?: import("@/lib/finance-store").Transaction;
 };
 
+const NO_RECURRENCE = "none";
+
 export function AddTransactionDialog({ trigger, defaultKind = "expense", transaction }: Props) {
-  const { addTransaction, updateTransaction } = useFinance();
+  const { addTransaction, updateTransaction, addSubscription } = useFinance();
   const isEdit = Boolean(transaction);
   const [open, setOpen] = useState(false);
   const [kind, setKind] = useState<TxKind>(transaction?.kind ?? defaultKind);
@@ -45,8 +50,10 @@ export function AddTransactionDialog({ trigger, defaultKind = "expense", transac
   const [date, setDate] = useState(
     transaction ? transaction.date.slice(0, 10) : new Date().toISOString().slice(0, 10),
   );
+  const [recurrence, setRecurrence] = useState<BillingCycle | typeof NO_RECURRENCE>(NO_RECURRENCE);
 
   const categories = kind === "expense" ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
+  const canRecur = kind === "expense" && !isEdit;
 
   function reset() {
     if (transaction) {
@@ -64,6 +71,7 @@ export function AddTransactionDialog({ trigger, defaultKind = "expense", transac
       setDate(new Date().toISOString().slice(0, 10));
       setKind(defaultKind);
     }
+    setRecurrence(NO_RECURRENCE);
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -88,6 +96,19 @@ export function AddTransactionDialog({ trigger, defaultKind = "expense", transac
     if (isEdit && transaction) {
       updateTransaction(transaction.id, payload);
       toast.success("Movimento aggiornato", {
+        description: `${payload.merchant} · €${parsed.toFixed(2)}`,
+      });
+    } else if (canRecur && recurrence !== NO_RECURRENCE) {
+      addSubscription({
+        name: payload.merchant,
+        amount: parsed,
+        cycle: recurrence,
+        nextRenewal: nextRenewalDate(payload.date, recurrence),
+        category: payload.category,
+        active: true,
+        note: payload.note,
+      });
+      toast.success("Spesa ricorrente creata", {
         description: `${payload.merchant} · €${parsed.toFixed(2)}`,
       });
     } else {
@@ -191,6 +212,33 @@ export function AddTransactionDialog({ trigger, defaultKind = "expense", transac
               />
             </div>
           </div>
+
+          {canRecur && (
+            <div className="space-y-2">
+              <Label>Ricorrenza</Label>
+              <Select
+                value={recurrence}
+                onValueChange={(v) => setRecurrence(v as BillingCycle | typeof NO_RECURRENCE)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_RECURRENCE}>Nessuna</SelectItem>
+                  {CYCLES.map((c) => (
+                    <SelectItem key={c.value} value={c.value}>
+                      {c.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {recurrence !== NO_RECURRENCE && (
+                <p className="text-xs text-muted-foreground">
+                  Verrà spostata tra le spese ricorrenti invece che tra i movimenti singoli.
+                </p>
+              )}
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="note">Nota (facoltativa)</Label>
