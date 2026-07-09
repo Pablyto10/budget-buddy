@@ -159,7 +159,7 @@ type FinanceCtx = {
   topCategories: { category: string; amount: number }[];
 };
 
-type Plan = Awaited<ReturnType<typeof getGoalPlan>>;
+type Plan = Extract<Awaited<ReturnType<typeof getGoalPlan>>, { available: true }>;
 
 function GoalCard({
   goal,
@@ -203,7 +203,11 @@ function GoalCard({
           topCategories: finance.topCategories,
         },
       });
-      setPlan(p);
+      if (p.available) {
+        setPlan(p);
+      } else {
+        toast.error("Piano AI non configurato per questo progetto.");
+      }
     } catch (err) {
       console.error(err);
       toast.error("Non sono riuscito a generare il piano.");

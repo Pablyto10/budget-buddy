@@ -791,8 +791,11 @@ function RecentActivity() {
 
 // ---------- Insight & Quote cards (AI-powered) ----------
 
-type Insight = Awaited<ReturnType<typeof getPersonalizedInsight>>;
-type MotivationalQuote = Awaited<ReturnType<typeof getMotivationalQuote>>;
+type Insight = Extract<Awaited<ReturnType<typeof getPersonalizedInsight>>, { available: true }>;
+type MotivationalQuote = Extract<
+  Awaited<ReturnType<typeof getMotivationalQuote>>,
+  { available: true }
+>;
 
 function InsightGrid() {
   return (
@@ -838,7 +841,11 @@ function PersonalInsightCard() {
     setError(null);
     try {
       const res = await insightFn({ data: payload });
-      setData(res);
+      if (res.available) {
+        setData(res);
+      } else {
+        setError("Consiglio AI non configurato per questo progetto.");
+      }
     } catch (err) {
       console.error(err);
       setError("Non sono riuscito a generare il consiglio. Riprova.");
@@ -936,7 +943,11 @@ function QuoteCard() {
     setError(null);
     try {
       const res = await quoteFn({ data: { seed: Date.now().toString() } });
-      setData(res);
+      if (res.available) {
+        setData(res);
+      } else {
+        setError("Citazioni AI non configurate per questo progetto.");
+      }
     } catch (err) {
       console.error(err);
       setError("Nessuna citazione al momento. Riprova.");
