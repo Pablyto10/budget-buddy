@@ -416,6 +416,7 @@ function AuthPage() {
           </form>
         )}
       </Card>
+      </div>
     </div>
   );
 }
