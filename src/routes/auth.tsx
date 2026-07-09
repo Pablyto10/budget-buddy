@@ -221,9 +221,9 @@ function AuthPage() {
       <img
         src={loginBgAsset.url}
         alt=""
-        className="absolute inset-0 h-full w-full object-cover"
+        className="absolute inset-0 h-full w-full object-cover object-[70%_center]"
       />
-      <div className="absolute inset-0 bg-background/60" />
+      <div className="absolute inset-0 bg-background/40" />
       <div className="relative z-10 flex w-full flex-col items-center">
       <div className="mb-8 flex flex-col items-center text-center">
         <div className="flex items-center gap-3">
