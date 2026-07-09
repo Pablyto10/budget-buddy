@@ -264,7 +264,7 @@ function TopNav() {
         </div>
         <Link
           to="/account"
-          className="inline-flex items-center justify-center sm:justify-start gap-1.5 rounded-full border border-fuchsia-400/30 bg-fuchsia-400/10 text-fuchsia-300 size-11 sm:size-auto sm:px-3 sm:py-1.5 text-xs font-medium hover:bg-fuchsia-400/20 transition-colors"
+          className="inline-flex items-center justify-center sm:justify-start gap-1.5 rounded-full border border-slate-400/30 bg-slate-400/10 text-slate-300 size-11 sm:size-auto sm:px-3 sm:py-1.5 text-xs font-medium hover:bg-slate-400/20 transition-colors"
           aria-label="Account"
         >
           <UserCog className="size-5 sm:size-3.5" />
