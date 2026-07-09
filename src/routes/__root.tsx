@@ -81,6 +81,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "theme-color", content: "#080809" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "Where's My Budget" },
       { title: "Where's My Budget" },
       {
         name: "description",
@@ -108,6 +111,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: appCss,
       },
       { rel: "icon", type: "image/png", href: "/__l5e/assets-v1/97279fdc-1094-4289-8849-42c00f372137/wheres-my-budget-logo.png" },
+      { rel: "apple-touch-icon", href: "/__l5e/assets-v1/97279fdc-1094-4289-8849-42c00f372137/wheres-my-budget-logo.png" },
     ],
   }),
   shellComponent: RootShell,
