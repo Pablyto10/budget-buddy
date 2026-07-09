@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import logoAsset from "@/assets/wheres-my-budget-logo.png.asset.json";
+import loginBgAsset from "@/assets/login-background.png.asset.json";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -216,8 +217,15 @@ function AuthPage() {
         : "Recupera l'accesso";
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12">
-      <div className="mb-8 flex flex-col items-center text-center">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 py-12">
+      <img
+        src={loginBgAsset.url}
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover object-[70%_center]"
+      />
+      <div className="absolute inset-0 bg-background/50 backdrop-blur-[1px]" />
+      <div className="relative z-10 flex w-full flex-col items-center">
+      <div className="mb-8 flex flex-col items-center text-center drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
         <div className="flex items-center gap-3">
           <img
             src={logoAsset.url}
@@ -408,6 +416,7 @@ function AuthPage() {
           </form>
         )}
       </Card>
+      </div>
     </div>
   );
 }
