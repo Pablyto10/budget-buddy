@@ -217,7 +217,14 @@ function AuthPage() {
         : "Recupera l'accesso";
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 py-12">
+      <img
+        src={loginBgAsset.url}
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      <div className="absolute inset-0 bg-background/85" />
+      <div className="relative z-10 flex w-full flex-col items-center">
       <div className="mb-8 flex flex-col items-center text-center">
         <div className="flex items-center gap-3">
           <img
@@ -409,6 +416,7 @@ function AuthPage() {
           </form>
         )}
       </Card>
+      </div>
     </div>
   );
 }
