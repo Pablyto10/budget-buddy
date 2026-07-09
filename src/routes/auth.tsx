@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import logoAsset from "@/assets/wheres-my-budget-logo.png.asset.json";
+import loginBgAsset from "@/assets/login-background.png.asset.json";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
