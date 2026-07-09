@@ -220,42 +220,42 @@ function TopNav() {
     navigate({ to: "/auth", replace: true });
   }
   return (
-    <nav className="sticky top-0 z-40 flex items-center justify-between px-6 py-4 border-b border-white/5 bg-background/80 backdrop-blur-xl">
+    <nav className="sticky top-0 z-40 flex flex-wrap items-center justify-between gap-y-3 px-6 py-4 border-b border-white/5 bg-background/80 backdrop-blur-xl">
       <div className="flex items-center gap-2.5">
         <img
           src={logoAsset.url}
           alt="Where's My Budget"
-          className="size-8 rounded-lg object-cover"
+          className="size-8 rounded-lg object-cover shrink-0"
         />
-        <span className="font-display text-lg tracking-tight">Where's My Budget</span>
+        <span className="font-display text-lg tracking-tight whitespace-nowrap">Where's My Budget</span>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 w-full justify-center sm:w-auto sm:justify-start">
         <Link
           to="/goals"
-          className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-white/10 transition-colors"
+          className="inline-flex items-center justify-center sm:justify-start gap-1.5 rounded-full border border-violet-400/30 bg-violet-400/10 text-violet-300 size-11 sm:size-auto sm:px-3 sm:py-1.5 text-xs font-medium hover:bg-violet-400/20 transition-colors"
         >
-          <Target className="size-3.5" />
+          <Target className="size-5 sm:size-3.5" />
           <span className="hidden sm:inline">Obiettivi</span>
         </Link>
         <Link
           to="/subscriptions"
-          className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-white/10 transition-colors"
+          className="inline-flex items-center justify-center sm:justify-start gap-1.5 rounded-full border border-sky-400/30 bg-sky-400/10 text-sky-300 size-11 sm:size-auto sm:px-3 sm:py-1.5 text-xs font-medium hover:bg-sky-400/20 transition-colors"
         >
-          <RefreshCw className="size-3.5" />
+          <RefreshCw className="size-5 sm:size-3.5" />
           <span className="hidden sm:inline">Spese ricorrenti</span>
         </Link>
         <Link
           to="/credit-card"
-          className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-white/10 transition-colors"
+          className="inline-flex items-center justify-center sm:justify-start gap-1.5 rounded-full border border-amber-400/30 bg-amber-400/10 text-amber-300 size-11 sm:size-auto sm:px-3 sm:py-1.5 text-xs font-medium hover:bg-amber-400/20 transition-colors"
         >
-          <CreditCard className="size-3.5" />
+          <CreditCard className="size-5 sm:size-3.5" />
           <span className="hidden sm:inline">Carta di credito</span>
         </Link>
         <Link
           to="/forecast"
-          className="inline-flex items-center gap-1.5 rounded-full border border-mint/30 bg-mint/10 px-3 py-1.5 text-xs font-medium text-mint hover:bg-mint/20 transition-colors"
+          className="inline-flex items-center justify-center sm:justify-start gap-1.5 rounded-full border border-mint/30 bg-mint/10 text-mint size-11 sm:size-auto sm:px-3 sm:py-1.5 text-xs font-medium hover:bg-mint/20 transition-colors"
         >
-          <LineChartIcon className="size-3.5" />
+          <LineChartIcon className="size-5 sm:size-3.5" />
           <span className="hidden sm:inline">Forecast</span>
         </Link>
         <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-mint/10 border border-mint/20">
@@ -264,18 +264,18 @@ function TopNav() {
         </div>
         <Link
           to="/account"
-          className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-white/10 transition-colors"
+          className="inline-flex items-center justify-center sm:justify-start gap-1.5 rounded-full border border-slate-400/30 bg-slate-400/10 text-slate-300 size-11 sm:size-auto sm:px-3 sm:py-1.5 text-xs font-medium hover:bg-slate-400/20 transition-colors"
           aria-label="Account"
         >
-          <UserCog className="size-3.5" />
+          <UserCog className="size-5 sm:size-3.5" />
           <span className="hidden sm:inline">Account</span>
         </Link>
         <button
           onClick={handleSignOut}
-          className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-white/10 transition-colors"
+          className="inline-flex items-center justify-center sm:justify-start gap-1.5 rounded-full border border-red-400/30 bg-red-400/10 text-red-300 size-11 sm:size-auto sm:px-3 sm:py-1.5 text-xs font-medium hover:bg-red-400/20 transition-colors"
           aria-label="Esci"
         >
-          <LogOut className="size-3.5" />
+          <LogOut className="size-5 sm:size-3.5" />
           <span className="hidden sm:inline">Esci</span>
         </button>
       </div>
