@@ -24,6 +24,12 @@ import {
   ShieldAlert,
   UserCog,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { format, isToday, isYesterday } from "date-fns";
@@ -999,6 +1005,7 @@ function CaptureBar() {
 
   const [busy, setBusy] = useState<null | "photo" | "voice" | "text">(null);
   const [recording, setRecording] = useState(false);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
 
   function commit(tx: ParsedTransaction, source: "photo" | "voice" | "manual") {
     addTransaction({
@@ -1139,30 +1146,33 @@ function CaptureBar() {
           onSubmit={handleQuickAdd}
           className="flex items-center gap-2 rounded-2xl border border-white/10 bg-card-elevated/80 p-2 shadow-2xl shadow-black/50 backdrop-blur-xl"
         >
-          <AddTransactionDialog
-            trigger={
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                aria-label="Aggiungi manualmente"
-                className="p-3 text-muted-foreground transition-colors hover:text-foreground"
+                aria-label="Aggiungi"
+                disabled={busy !== null || recording}
+                className="p-3 text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
               >
-                <Plus className="size-5" strokeWidth={2} />
+                {busy === "photo" ? (
+                  <Loader2 className="size-5 animate-spin" />
+                ) : (
+                  <Plus className="size-5" strokeWidth={2} />
+                )}
               </button>
-            }
-          />
-          <button
-            type="button"
-            aria-label="Fotografa scontrino"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={busy !== null || recording}
-            className="p-3 text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
-          >
-            {busy === "photo" ? (
-              <Loader2 className="size-5 animate-spin" />
-            ) : (
-              <Camera className="size-5" strokeWidth={1.8} />
-            )}
-          </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" side="top" className="w-56">
+              <DropdownMenuItem onSelect={() => setAddDialogOpen(true)}>
+                <Plus className="size-4" />
+                Nuova spesa
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => fileInputRef.current?.click()}>
+                <Camera className="size-4" />
+                Carica immagine
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <AddTransactionDialog open={addDialogOpen} onOpenChange={setAddDialogOpen} />
           <input
             name="quick"
             type="text"
@@ -1220,7 +1230,7 @@ function CaptureBar() {
         </form>
         <p className="mt-2 text-center text-[11px] text-muted-foreground/60">
           <Sparkles className="inline size-3 -mt-0.5 mr-1" />
-          Tocca + per entrate/spese, foto per scontrini, mic per la voce
+          Tocca + per aggiungere a mano o caricare uno scontrino, mic per la voce
         </p>
       </div>
     </div>
