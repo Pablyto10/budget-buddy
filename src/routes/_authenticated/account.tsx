@@ -287,7 +287,7 @@ function AccountPage() {
             </button>
 
             <a
-              href="https://pablogarcia.notion.site/Implementazioni-3976bc449028802080c4d9fd4a64281f?source=copy_link"
+              href="https://wheresmybudget.notion.site/Implementazioni-3976bc449028802080c4d9fd4a64281f?source=copy_link"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full flex items-center justify-between gap-4 rounded-xl border border-white/5 bg-background/40 p-4 hover:bg-background/60 transition-colors"
