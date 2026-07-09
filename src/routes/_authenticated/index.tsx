@@ -584,9 +584,107 @@ function sourceLabel(source: Transaction["source"]) {
   }
 }
 
+const SWIPE_REVEAL = 80;
+const SWIPE_OPEN_THRESHOLD = 40;
+const TAP_MOVE_THRESHOLD = 8;
+
+function SwipeableTransactionRow({
+  onEdit,
+  onDelete,
+  children,
+}: {
+  onEdit: () => void;
+  onDelete: () => void;
+  children: React.ReactNode;
+}) {
+  const [dragX, setDragX] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const startXRef = useRef(0);
+  const startDragXRef = useRef(0);
+  const movedRef = useRef(false);
+
+  function clamp(v: number) {
+    return Math.max(-SWIPE_REVEAL, Math.min(SWIPE_REVEAL, v));
+  }
+
+  function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    startXRef.current = e.clientX;
+    startDragXRef.current = dragX;
+    movedRef.current = false;
+    setDragging(true);
+  }
+
+  function handlePointerMove(e: React.PointerEvent<HTMLDivElement>) {
+    if (!dragging) return;
+    const delta = e.clientX - startXRef.current;
+    if (Math.abs(delta) > TAP_MOVE_THRESHOLD) movedRef.current = true;
+    setDragX(clamp(startDragXRef.current + delta));
+  }
+
+  function handlePointerUp() {
+    setDragging(false);
+    if (!movedRef.current) {
+      if (dragX !== 0) setDragX(0);
+      else onEdit();
+      return;
+    }
+    if (dragX > SWIPE_OPEN_THRESHOLD) setDragX(SWIPE_REVEAL);
+    else if (dragX < -SWIPE_OPEN_THRESHOLD) setDragX(-SWIPE_REVEAL);
+    else setDragX(0);
+  }
+
+  return (
+    <div className="relative overflow-hidden rounded-xl">
+      <div className="absolute inset-y-0 left-0 flex w-20 items-stretch">
+        <button
+          type="button"
+          aria-label="Elimina movimento"
+          onClick={() => {
+            onDelete();
+            setDragX(0);
+          }}
+          className="flex flex-1 items-center justify-center rounded-l-xl bg-destructive text-destructive-foreground"
+        >
+          <Trash2 className="size-5" />
+        </button>
+      </div>
+      <div className="absolute inset-y-0 right-0 flex w-20 items-stretch">
+        <button
+          type="button"
+          aria-label="Modifica movimento"
+          onClick={() => {
+            onEdit();
+            setDragX(0);
+          }}
+          className="flex flex-1 items-center justify-center rounded-r-xl bg-amber-soft text-background"
+        >
+          <Pencil className="size-5" />
+        </button>
+      </div>
+      <div
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        style={{
+          transform: `translateX(${dragX}px)`,
+          transition: dragging ? "none" : "transform 200ms ease-out",
+          touchAction: "pan-y",
+        }}
+        className="relative"
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
 function RecentActivity() {
   const { transactions, removeTransaction } = useFinance();
   const recent = transactions.slice(0, 6);
+  const [editing, setEditing] = useState<Transaction | null>(null);
 
   return (
     <section className="space-y-4">
@@ -628,63 +726,57 @@ function RecentActivity() {
       ) : (
         <div className="space-y-3">
           {recent.map((t) => (
-            <div
+            <SwipeableTransactionRow
               key={t.id}
-              className="group flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:border-mint/20"
+              onEdit={() => setEditing(t)}
+              onDelete={() => removeTransaction(t.id)}
             >
-              <div className="flex items-center gap-4 min-w-0">
-                <div
-                  className={`size-10 rounded-full grid place-items-center italic font-display transition-colors ${
-                    t.kind === "income"
-                      ? "bg-mint/10 text-mint border border-mint/20"
-                      : "bg-white/5 text-muted-foreground border border-white/5 group-hover:text-mint"
-                  }`}
-                >
-                  {t.merchant.charAt(0).toUpperCase()}
-                </div>
-                <div className="min-w-0">
-                  <p className="font-medium truncate">{t.merchant}</p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {t.category} · {relativeDate(t.date)}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 shrink-0">
-                <div className="text-right">
-                  <p
-                    className={`font-display ${
-                      t.kind === "income" ? "text-mint" : ""
+              <div className="group flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:border-mint/20">
+                <div className="flex items-center gap-4 min-w-0">
+                  <div
+                    className={`size-10 rounded-full grid place-items-center italic font-display transition-colors ${
+                      t.kind === "income"
+                        ? "bg-mint/10 text-mint border border-mint/20"
+                        : "bg-white/5 text-muted-foreground border border-white/5 group-hover:text-mint"
                     }`}
                   >
-                    {t.kind === "income" ? "+" : "-"}
-                    {formatEUR(t.amount)}
-                  </p>
-                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60">
-                    {sourceLabel(t.source)}
-                  </p>
+                    {t.merchant.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-medium truncate">{t.merchant}</p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {t.category} · {relativeDate(t.date)}
+                    </p>
+                  </div>
                 </div>
-                <AddTransactionDialog
-                  transaction={t}
-                  trigger={
-                    <button
-                      aria-label="Modifica movimento"
-                      className="p-2 rounded-lg text-muted-foreground hover:text-mint hover:bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"
+                <div className="flex items-center gap-3 shrink-0">
+                  <div className="text-right">
+                    <p
+                      className={`font-display ${
+                        t.kind === "income" ? "text-mint" : ""
+                      }`}
                     >
-                      <Pencil className="size-4" />
-                    </button>
-                  }
-                />
-                <button
-                  onClick={() => removeTransaction(t.id)}
-                  aria-label="Elimina movimento"
-                  className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <Trash2 className="size-4" />
-                </button>
+                      {t.kind === "income" ? "+" : "-"}
+                      {formatEUR(t.amount)}
+                    </p>
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60">
+                      {sourceLabel(t.source)}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
+            </SwipeableTransactionRow>
           ))}
         </div>
+      )}
+      {editing && (
+        <AddTransactionDialog
+          transaction={editing}
+          open={Boolean(editing)}
+          onOpenChange={(o) => {
+            if (!o) setEditing(null);
+          }}
+        />
       )}
     </section>
   );

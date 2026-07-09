@@ -31,17 +31,27 @@ import {
 } from "@/lib/finance-store";
 
 type Props = {
-  trigger: ReactNode;
+  trigger?: ReactNode;
   defaultKind?: TxKind;
   transaction?: import("@/lib/finance-store").Transaction;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
 const NO_RECURRENCE = "none";
 
-export function AddTransactionDialog({ trigger, defaultKind = "expense", transaction }: Props) {
+export function AddTransactionDialog({
+  trigger,
+  defaultKind = "expense",
+  transaction,
+  open: openProp,
+  onOpenChange,
+}: Props) {
   const { addTransaction, updateTransaction, removeTransaction, addSubscription } = useFinance();
   const isEdit = Boolean(transaction);
-  const [open, setOpen] = useState(false);
+  const [openState, setOpenState] = useState(false);
+  const open = openProp ?? openState;
+  const setOpen = onOpenChange ?? setOpenState;
   const [kind, setKind] = useState<TxKind>(transaction?.kind ?? defaultKind);
   const [amount, setAmount] = useState(transaction ? String(transaction.amount) : "");
   const [merchant, setMerchant] = useState(transaction?.merchant ?? "");
@@ -125,7 +135,7 @@ export function AddTransactionDialog({ trigger, defaultKind = "expense", transac
 
   return (
     <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) reset(); }}>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent className="sm:max-w-md bg-card border-white/10">
         <DialogHeader>
           <DialogTitle className="font-display text-xl">
