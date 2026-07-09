@@ -20,7 +20,10 @@ async function getServerEntry(): Promise<ServerEntry> {
 
 // h3 swallows in-handler throws into a normal 500 Response with body
 // {"unhandled":true,"message":"HTTPError"} — try/catch alone never fires for those.
-async function normalizeCatastrophicSsrResponse(response: Response): Promise<Response> {
+async function normalizeCatastrophicSsrResponse(
+  response: Response,
+  request: Request,
+): Promise<Response> {
   if (response.status < 500) return response;
   const contentType = response.headers.get("content-type") ?? "";
   if (!contentType.includes("application/json")) return response;
@@ -29,6 +32,13 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   if (!isH3SwallowedErrorBody(body)) return response;
 
   console.error(consumeLastCapturedError() ?? new Error(`h3 swallowed SSR error: ${body}`));
+
+  // Server function calls (/_serverFn/...) are RPC requests: the client expects a
+  // JSON payload it can parse and reject with, not an HTML document. Rewriting
+  // those into the full error page breaks server-fn deserialization client-side
+  // and blanks the whole app instead of letting the caller's try/catch handle it.
+  if (new URL(request.url).pathname.startsWith("/_serverFn/")) return response;
+
   return new Response(renderErrorPage(), {
     status: 500,
     headers: { "content-type": "text/html; charset=utf-8" },
@@ -49,9 +59,17 @@ export default {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      return await normalizeCatastrophicSsrResponse(response, request);
     } catch (error) {
       console.error(error);
+      // Same reasoning as above: a server-fn RPC caller needs a JSON body it can
+      // parse and reject with, not an HTML document.
+      if (new URL(request.url).pathname.startsWith("/_serverFn/")) {
+        return new Response(JSON.stringify({ unhandled: true, message: "HTTPError" }), {
+          status: 500,
+          headers: { "content-type": "application/json" },
+        });
+      }
       return new Response(renderErrorPage(), {
         status: 500,
         headers: { "content-type": "text/html; charset=utf-8" },
