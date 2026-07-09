@@ -25,6 +25,7 @@ import {
   SUB_CATEGORIES,
   SUBSCRIPTION_NAMES,
   SUBSCRIPTION_NAME_CATEGORY,
+  CYCLES,
   type BillingCycle,
   type Subscription,
 } from "@/lib/finance-store";
@@ -33,13 +34,6 @@ type Props = {
   trigger: ReactNode;
   editing?: Subscription;
 };
-
-const CYCLES: { value: BillingCycle; label: string }[] = [
-  { value: "weekly", label: "Settimanale" },
-  { value: "monthly", label: "Mensile" },
-  { value: "quarterly", label: "Trimestrale" },
-  { value: "yearly", label: "Annuale" },
-];
 
 const CUSTOM_OPTION = "Altro";
 
