@@ -3,11 +3,12 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { User, ShieldCheck, Settings2, AlertTriangle, LogOut, Loader2 } from "lucide-react";
+import { User, ShieldCheck, Settings2, AlertTriangle, LogOut, Loader2, Info, MessageSquarePlus, ExternalLink, ChevronRight } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile } from "@/lib/profile-store";
 import { deleteMyAccount, wipeMyData } from "@/lib/account.functions";
+import { FeedbackDialog } from "@/components/FeedbackButton";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,6 +62,7 @@ function AccountPage() {
   const [wiping, setWiping] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [confirmText, setConfirmText] = useState("");
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   const wipe = useServerFn(wipeMyData);
   const del = useServerFn(deleteMyAccount);
@@ -263,6 +265,48 @@ function AccountPage() {
             />
           </div>
         </Section>
+
+        {/* Info & Release */}
+        <Section icon={<Info className="size-4" />} title="Info & Release" description="Invia segnalazioni e scopri le ultime novità.">
+          <div className="space-y-3">
+            <button
+              type="button"
+              onClick={() => setFeedbackOpen(true)}
+              className="w-full flex items-center justify-between gap-4 rounded-xl border border-white/5 bg-background/40 p-4 text-left hover:bg-background/60 transition-colors"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="size-8 rounded-lg bg-mint/10 text-mint flex items-center justify-center shrink-0">
+                  <MessageSquarePlus className="size-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium">Segnalazioni</p>
+                  <p className="text-xs text-muted-foreground">Segnala un bug o proponi un miglioramento.</p>
+                </div>
+              </div>
+              <ChevronRight className="size-4 text-muted-foreground shrink-0" />
+            </button>
+
+            <a
+              href="https://pablogarcia.notion.site/Implementazioni-3976bc449028802080c4d9fd4a64281f?source=copy_link"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-between gap-4 rounded-xl border border-white/5 bg-background/40 p-4 hover:bg-background/60 transition-colors"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="size-8 rounded-lg bg-mint/10 text-mint flex items-center justify-center shrink-0">
+                  <Info className="size-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium">Info Release</p>
+                  <p className="text-xs text-muted-foreground">Scopri le ultime implementazioni e novità.</p>
+                </div>
+              </div>
+              <ExternalLink className="size-4 text-muted-foreground shrink-0" />
+            </a>
+          </div>
+        </Section>
+
+        <FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
 
         {/* Area pericolosa */}
         <section className="rounded-2xl border border-rose-soft/30 bg-rose-soft/[0.03] p-6">
