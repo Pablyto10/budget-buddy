@@ -39,7 +39,7 @@ type Props = {
 const NO_RECURRENCE = "none";
 
 export function AddTransactionDialog({ trigger, defaultKind = "expense", transaction }: Props) {
-  const { addTransaction, updateTransaction, addSubscription } = useFinance();
+  const { addTransaction, updateTransaction, removeTransaction, addSubscription } = useFinance();
   const isEdit = Boolean(transaction);
   const [open, setOpen] = useState(false);
   const [kind, setKind] = useState<TxKind>(transaction?.kind ?? defaultKind);
@@ -53,7 +53,7 @@ export function AddTransactionDialog({ trigger, defaultKind = "expense", transac
   const [recurrence, setRecurrence] = useState<BillingCycle | typeof NO_RECURRENCE>(NO_RECURRENCE);
 
   const categories = kind === "expense" ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
-  const canRecur = kind === "expense" && !isEdit;
+  const canRecur = kind === "expense";
 
   function reset() {
     if (transaction) {
@@ -93,12 +93,7 @@ export function AddTransactionDialog({ trigger, defaultKind = "expense", transac
       note: note.trim() || undefined,
       date: new Date(date).toISOString(),
     };
-    if (isEdit && transaction) {
-      updateTransaction(transaction.id, payload);
-      toast.success("Movimento aggiornato", {
-        description: `${payload.merchant} · €${parsed.toFixed(2)}`,
-      });
-    } else if (canRecur && recurrence !== NO_RECURRENCE) {
+    if (canRecur && recurrence !== NO_RECURRENCE) {
       addSubscription({
         name: payload.merchant,
         amount: parsed,
@@ -108,7 +103,13 @@ export function AddTransactionDialog({ trigger, defaultKind = "expense", transac
         active: true,
         note: payload.note,
       });
-      toast.success("Spesa ricorrente creata", {
+      if (isEdit && transaction) removeTransaction(transaction.id);
+      toast.success(isEdit ? "Spesa convertita in ricorrente" : "Spesa ricorrente creata", {
+        description: `${payload.merchant} · €${parsed.toFixed(2)}`,
+      });
+    } else if (isEdit && transaction) {
+      updateTransaction(transaction.id, payload);
+      toast.success("Movimento aggiornato", {
         description: `${payload.merchant} · €${parsed.toFixed(2)}`,
       });
     } else {
