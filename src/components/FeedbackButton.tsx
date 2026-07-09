@@ -16,11 +16,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 
-export function FeedbackButton() {
-  const [open, setOpen] = useState(false);
+export function FeedbackDialog({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+}) {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
@@ -41,7 +45,7 @@ export function FeedbackButton() {
       await send({ data: { message: trimmed } });
       toast.success("Segnalazione inviata, grazie!");
       setMessage("");
-      setOpen(false);
+      onOpenChange(false);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Errore nell'invio");
     } finally {
@@ -50,17 +54,7 @@ export function FeedbackButton() {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          size="sm"
-          className="fixed bottom-24 right-6 z-50 shadow-lg gap-2 rounded-full h-11 px-4 sm:bottom-6 btn-feedback-premium"
-          aria-label="Invia segnalazione"
-        >
-          <MessageSquarePlus className="size-4" />
-          <span className="hidden sm:inline">Segnalazione</span>
-        </Button>
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Invia una segnalazione</DialogTitle>
@@ -92,7 +86,7 @@ export function FeedbackButton() {
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)} disabled={sending}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={sending}>
             Annulla
           </Button>
           <Button onClick={handleSubmit} disabled={sending || message.trim().length < 3}>
@@ -101,5 +95,23 @@ export function FeedbackButton() {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+export function FeedbackButton() {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button
+        size="sm"
+        onClick={() => setOpen(true)}
+        className="fixed bottom-24 right-6 z-50 shadow-lg gap-2 rounded-full h-11 px-4 sm:bottom-6 btn-feedback-premium"
+        aria-label="Invia segnalazione"
+      >
+        <MessageSquarePlus className="size-4" />
+        <span className="hidden sm:inline">Segnalazione</span>
+      </Button>
+      <FeedbackDialog open={open} onOpenChange={setOpen} />
+    </>
   );
 }
