@@ -223,7 +223,7 @@ function AuthPage() {
         alt=""
         className="absolute inset-0 h-full w-full object-cover object-[70%_center]"
       />
-      <div className="absolute inset-0 bg-background/60 backdrop-blur-[2px]" />
+      <div className="absolute inset-0 bg-background/50 backdrop-blur-[1px]" />
       <div className="relative z-10 flex w-full flex-col items-center">
       <div className="mb-8 flex flex-col items-center text-center drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
         <div className="flex items-center gap-3">
