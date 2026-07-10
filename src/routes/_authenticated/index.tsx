@@ -690,7 +690,7 @@ function SwipeableTransactionRow({
 
 function RecentActivity() {
   const { transactions, removeTransaction } = useFinance();
-  const recent = transactions.slice(0, 6);
+  const recent = transactions.filter((t) => new Date(t.date).getTime() <= Date.now()).slice(0, 6);
   const [editing, setEditing] = useState<Transaction | null>(null);
 
   return (
