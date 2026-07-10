@@ -132,6 +132,40 @@ function Home() {
     return { income, expenses, net, burnRate };
   }, [transactions]);
 
+  // Media mensile spese sugli ultimi 3 mesi (per fondo emergenza consigliato)
+  const avgMonthlyExpenses = useMemo(() => {
+    const now = new Date();
+    const buckets = new Map<string, number>();
+    for (const t of transactions) {
+      if (t.kind !== "expense") continue;
+      const d = new Date(t.date);
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      buckets.set(key, (buckets.get(key) ?? 0) + t.amount);
+    }
+    const keys: string[] = [];
+    for (let i = 0; i < 3; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      keys.push(`${d.getFullYear()}-${d.getMonth()}`);
+    }
+    const total = keys.reduce((s, k) => s + (buckets.get(k) ?? 0), 0);
+    return total / keys.length;
+  }, [transactions]);
+
+  // Uscite giornaliere degli ultimi 7 giorni (per sparkline)
+  const dailyExpenses7 = useMemo(() => {
+    const arr = new Array(7).fill(0) as number[];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    for (const t of transactions) {
+      if (t.kind !== "expense") continue;
+      const d = new Date(t.date);
+      d.setHours(0, 0, 0, 0);
+      const diff = Math.round((today.getTime() - d.getTime()) / 86400000);
+      if (diff >= 0 && diff < 7) arr[6 - diff] += t.amount;
+    }
+    return arr;
+  }, [transactions]);
+
   const featuredGoal = goals[0];
 
   return (
@@ -148,6 +182,9 @@ function Home() {
           subsMonthly={subsMonthly}
           savings={savings.risparmio}
           emergency={savings.emergenza}
+          avgMonthlyExpenses={avgMonthlyExpenses}
+          dailyExpenses7={dailyExpenses7}
+          goalTarget={featuredGoal?.targetAmount ?? 0}
         />
         {featuredGoal ? <GoalPreview goal={featuredGoal} /> : null}
         <RecentActivity />
