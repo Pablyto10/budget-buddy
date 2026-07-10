@@ -13,6 +13,7 @@ import {
 } from "recharts";
 
 import { useFinance, formatEUR, monthlyEquivalent } from "@/lib/finance-store";
+import { ForecastCategoryBreakdown } from "@/components/ForecastCategoryBreakdown";
 
 export const Route = createFileRoute("/_authenticated/forecast")({
   head: () => ({
@@ -482,6 +483,8 @@ function ForecastPage() {
             </ResponsiveContainer>
           </div>
         </div>
+
+        <ForecastCategoryBreakdown />
 
         {/* Breakdown */}
         <div className="rounded-2xl border border-white/[0.06] bg-card p-6 space-y-4">
