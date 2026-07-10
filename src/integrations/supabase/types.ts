@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      daily_insights: {
+        Row: {
+          body: string
+          created_at: string
+          headline: string
+          id: string
+          insight_date: string
+          linked_goal: string | null
+          saving_estimate: number | null
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          headline: string
+          id?: string
+          insight_date: string
+          linked_goal?: string | null
+          saving_estimate?: number | null
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          headline?: string
+          id?: string
+          insight_date?: string
+          linked_goal?: string | null
+          saving_estimate?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       goals: {
         Row: {
           created_at: string
