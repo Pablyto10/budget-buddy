@@ -132,6 +132,40 @@ function Home() {
     return { income, expenses, net, burnRate };
   }, [transactions]);
 
+  // Media mensile spese sugli ultimi 3 mesi (per fondo emergenza consigliato)
+  const avgMonthlyExpenses = useMemo(() => {
+    const now = new Date();
+    const buckets = new Map<string, number>();
+    for (const t of transactions) {
+      if (t.kind !== "expense") continue;
+      const d = new Date(t.date);
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      buckets.set(key, (buckets.get(key) ?? 0) + t.amount);
+    }
+    const keys: string[] = [];
+    for (let i = 0; i < 3; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      keys.push(`${d.getFullYear()}-${d.getMonth()}`);
+    }
+    const total = keys.reduce((s, k) => s + (buckets.get(k) ?? 0), 0);
+    return total / keys.length;
+  }, [transactions]);
+
+  // Uscite giornaliere degli ultimi 7 giorni (per sparkline)
+  const dailyExpenses7 = useMemo(() => {
+    const arr = new Array(7).fill(0) as number[];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    for (const t of transactions) {
+      if (t.kind !== "expense") continue;
+      const d = new Date(t.date);
+      d.setHours(0, 0, 0, 0);
+      const diff = Math.round((today.getTime() - d.getTime()) / 86400000);
+      if (diff >= 0 && diff < 7) arr[6 - diff] += t.amount;
+    }
+    return arr;
+  }, [transactions]);
+
   const featuredGoal = goals[0];
 
   return (
@@ -148,6 +182,9 @@ function Home() {
           subsMonthly={subsMonthly}
           savings={savings.risparmio}
           emergency={savings.emergenza}
+          avgMonthlyExpenses={avgMonthlyExpenses}
+          dailyExpenses7={dailyExpenses7}
+          goalTarget={featuredGoal?.targetAmount ?? 0}
         />
         {featuredGoal ? <GoalPreview goal={featuredGoal} /> : null}
         <RecentActivity />
@@ -405,6 +442,9 @@ function StatsGrid({
   subsMonthly,
   savings,
   emergency,
+  avgMonthlyExpenses,
+  dailyExpenses7,
+  goalTarget,
 }: {
   balance: number;
   income: number;
@@ -413,7 +453,18 @@ function StatsGrid({
   subsMonthly: number;
   savings: number;
   emergency: number;
+  avgMonthlyExpenses: number;
+  dailyExpenses7: number[];
+  goalTarget: number;
 }) {
+  const totalFlow = income + expenses;
+  const incomeShare = totalFlow > 0 ? income / totalFlow : 0;
+  const balanceRatio = totalFlow > 0 ? Math.max(0, Math.min(1, (balance + expenses) / totalFlow)) : balance >= 0 ? 1 : 0;
+  const savingsTarget = goalTarget > 0 ? goalTarget : Math.max(income, avgMonthlyExpenses * 3, 1);
+  const savingsRatio = Math.min(1, savings / savingsTarget);
+  const emergencyTarget = Math.max(avgMonthlyExpenses * 3, 1);
+  const emergencyRatio = Math.min(1, emergency / emergencyTarget);
+  const subsRatio = income > 0 ? Math.min(1, subsMonthly / income) : subsMonthly > 0 ? 1 : 0;
   const stats = [
     {
       label: "Bilancio attuale",
@@ -421,6 +472,8 @@ function StatsGrid({
       delta: balance >= 0 ? "in positivo" : "in negativo",
       positive: balance >= 0,
       micro: "ring" as const,
+      vizValue: balanceRatio,
+      vizTone: (balance >= 0 ? "mint" : "danger") as "mint" | "warn" | "danger",
       icon: null as null | React.ReactNode,
       to: "/transactions" as const,
       search: {} as Record<string, string>,
@@ -432,6 +485,8 @@ function StatsGrid({
       delta: "accantonato",
       positive: true,
       micro: "bar" as const,
+      vizValue: savingsRatio,
+      vizTone: "mint" as const,
       icon: <PiggyBank className="size-4 text-info" /> as React.ReactNode,
       to: "/transactions" as const,
       search: { category: "Risparmio" },
@@ -443,6 +498,8 @@ function StatsGrid({
       delta: "riserva",
       positive: true,
       micro: "bar" as const,
+      vizValue: emergencyRatio,
+      vizTone: (emergencyRatio >= 1 ? "mint" : emergencyRatio >= 0.5 ? "warn" : "danger") as "mint" | "warn" | "danger",
       icon: <ShieldAlert className="size-4 text-info" /> as React.ReactNode,
       to: "/transactions" as const,
       search: { category: "Fondo emergenza" },
@@ -454,6 +511,8 @@ function StatsGrid({
       delta: "questo mese",
       positive: true,
       micro: "bar" as const,
+      vizValue: incomeShare,
+      vizTone: "mint" as const,
       icon: null,
       to: "/transactions" as const,
       search: { kind: "income", month: "current" },
@@ -465,6 +524,9 @@ function StatsGrid({
       delta: `${formatEUR(burnRate)}/giorno`,
       positive: false,
       micro: "spark" as const,
+      vizValue: 0,
+      vizTone: (expenses > income ? "danger" : "warn") as "mint" | "warn" | "danger",
+      vizSeries: dailyExpenses7,
       icon: null,
       to: "/transactions" as const,
       search: { kind: "expense", month: "current" },
@@ -476,6 +538,8 @@ function StatsGrid({
       delta: "al mese",
       positive: true,
       micro: "ring" as const,
+      vizValue: subsRatio,
+      vizTone: (subsRatio >= 0.3 ? "danger" : subsRatio >= 0.15 ? "warn" : "mint") as "mint" | "warn" | "danger",
       icon: null,
       to: "/subscriptions" as const,
       search: {} as Record<string, string>,
@@ -509,35 +573,71 @@ function StatsGrid({
               {s.delta}
             </span>
           </div>
-          <StatMicroViz kind={s.micro} />
+          <StatMicroViz
+            kind={s.micro}
+            value={s.vizValue}
+            tone={s.vizTone}
+            series={"vizSeries" in s ? (s as { vizSeries: number[] }).vizSeries : undefined}
+          />
         </Link>
       ))}
     </div>
   );
 }
 
-function StatMicroViz({ kind }: { kind: "bar" | "spark" | "ring" }) {
+function StatMicroViz({
+  kind,
+  value,
+  tone,
+  series,
+}: {
+  kind: "bar" | "spark" | "ring";
+  value: number;
+  tone: "mint" | "warn" | "danger";
+  series?: number[];
+}) {
+  const toneBg =
+    tone === "danger" ? "bg-rose-soft" : tone === "warn" ? "bg-amber-soft" : "bg-mint";
+  const toneText =
+    tone === "danger" ? "text-rose-soft" : tone === "warn" ? "text-amber-soft" : "text-mint";
+  const pct = Math.max(0, Math.min(1, value));
   if (kind === "bar") {
     return (
-      <div className="w-full h-1 rounded-full bg-white/5 overflow-hidden">
-        <div className="h-full w-3/4 bg-mint" />
+      <div className="space-y-1">
+        <div className="w-full h-1 rounded-full bg-white/5 overflow-hidden">
+          <div
+            className={`h-full ${toneBg} transition-[width] duration-500`}
+            style={{ width: `${Math.round(pct * 100)}%` }}
+          />
+        </div>
+        <p className={`text-[10px] ${toneText}`}>{Math.round(pct * 100)}%</p>
       </div>
     );
   }
   if (kind === "spark") {
+    const values = series && series.length > 0 ? series : [0];
+    const max = Math.max(...values, 1);
     return (
       <div className="flex gap-1 pt-1">
-        {[10, 20, 40, 100, 60].map((h, i) => (
-          <div
-            key={i}
-            className={`h-4 flex-1 rounded-sm ${
-              h >= 100 ? "bg-mint" : h >= 60 ? "bg-mint/40" : "bg-white/5"
-            }`}
-          />
-        ))}
+        {values.map((v, i) => {
+          const h = Math.max(2, Math.round((v / max) * 16));
+          const isPeak = v === max && v > 0;
+          return (
+            <div key={i} className="flex-1 flex items-end h-4">
+              <div
+                className={`w-full rounded-sm ${
+                  v === 0 ? "bg-white/5" : isPeak ? toneBg : `${toneBg} opacity-50`
+                }`}
+                style={{ height: `${h}px` }}
+              />
+            </div>
+          );
+        })}
       </div>
     );
   }
+  const circumference = 94.25;
+  const dash = pct * circumference;
   return (
     <div className="flex items-center gap-3">
       <div className="relative size-8">
@@ -558,13 +658,15 @@ function StatMicroViz({ kind }: { kind: "bar" | "spark" | "ring" }) {
             fill="none"
             stroke="currentColor"
             strokeWidth="3"
-            strokeDasharray={`${(78 / 100) * 94.25} 94.25`}
+            strokeDasharray={`${dash} ${circumference}`}
             strokeLinecap="round"
-            className="text-mint"
+            className={toneText}
           />
         </svg>
+        <span className={`absolute inset-0 grid place-items-center text-[9px] font-semibold ${toneText}`}>
+          {Math.round(pct * 100)}%
+        </span>
       </div>
-      <Target className="size-4 text-mint" />
     </div>
   );
 }
