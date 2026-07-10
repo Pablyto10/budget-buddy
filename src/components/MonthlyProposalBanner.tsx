@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { formatEUR, useFinance } from "@/lib/finance-store";
+import { isProposalFeatureActive } from "@/lib/monthly-proposal";
 
 const DISMISS_KEY_PREFIX = "budget-buddy:proposals-dismissed:";
 const SALARY_CATEGORY = "Stipendio";
@@ -74,7 +75,7 @@ export function MonthlyProposalBanner() {
   // da solo): non tiene aperto il banner da sola, altrimenti resterebbe visibile
   // tutto il mese anche a proposte già gestite.
   const hasActionable = pendingSubs.length > 0 || !salaryLogged;
-  if (dismissed || !hasActionable) return null;
+  if (dismissed || !hasActionable || !isProposalFeatureActive(now)) return null;
 
   function dismiss() {
     window.localStorage.setItem(storageKey, "1");
