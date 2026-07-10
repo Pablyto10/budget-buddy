@@ -55,6 +55,7 @@ import {
   type Transaction,
 } from "@/lib/finance-store";
 import { AddTransactionDialog } from "@/components/AddTransactionDialog";
+import { MonthlyProposalBanner } from "@/components/MonthlyProposalBanner";
 import logoAsset from "@/assets/wheres-my-budget-logo.png.asset.json";
 
 export const Route = createFileRoute("/_authenticated/")({
@@ -139,6 +140,7 @@ function Home() {
       <TopNav />
 
       <main className="mx-auto max-w-4xl px-6 py-8 space-y-8 pb-40">
+        <MonthlyProposalBanner />
         <CoachCard net={totalBalance} subsMonthly={subsMonthly} />
         <StatsGrid
           balance={totalBalance}
