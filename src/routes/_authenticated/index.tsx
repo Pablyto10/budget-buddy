@@ -329,6 +329,109 @@ function TopNav() {
   );
 }
 
+// Analisi giornaliera del coach: generata una sola volta al giorno (server-side,
+// via getPersonalizedInsight) e poi letta dalla cache `daily_insights` per il
+// resto della giornata. Se manca (utente nuovo, prima chiamata fallita) il
+// CoachCard torna al calcolo statico basato su saldo e spese ricorrenti.
+type DailyCoachInsight = {
+  headline: string;
+  body: string;
+  savingEstimate?: number;
+  linkedGoal?: string;
+};
+
+function useDailyCoachInsight(): DailyCoachInsight | null {
+  const { transactions, subscriptions, goals } = useFinance();
+  const insightFn = useServerFn(getPersonalizedInsight);
+  const [insight, setInsight] = useState<DailyCoachInsight | null>(null);
+
+  const payload = useMemo(() => {
+    const subsMonthly = subscriptions
+      .filter((s) => s.active)
+      .reduce((sum, s) => sum + monthlyEquivalent(s), 0);
+    return {
+      transactions: transactions.slice(0, 60).map((t) => ({
+        kind: t.kind,
+        amount: t.amount,
+        merchant: t.merchant,
+        category: t.category,
+        date: t.date,
+      })),
+      goals: goals.map((g) => ({
+        title: g.title,
+        targetAmount: g.targetAmount,
+        savedAmount: g.savedAmount,
+        deadline: g.deadline,
+      })),
+      monthlySubscriptions: subsMonthly,
+    };
+  }, [transactions, subscriptions, goals]);
+
+  useEffect(() => {
+    if (payload.transactions.length === 0) return;
+    let cancelled = false;
+
+    (async () => {
+      const { data: userRes } = await supabase.auth.getUser();
+      const userId = userRes.user?.id;
+      if (!userId) return;
+      const today = format(new Date(), "yyyy-MM-dd");
+
+      const { data: cached } = await supabase
+        .from("daily_insights")
+        .select("headline, body, saving_estimate, linked_goal")
+        .eq("user_id", userId)
+        .eq("insight_date", today)
+        .maybeSingle();
+      if (cancelled) return;
+      if (cached) {
+        setInsight({
+          headline: cached.headline,
+          body: cached.body,
+          savingEstimate: cached.saving_estimate ?? undefined,
+          linkedGoal: cached.linked_goal ?? undefined,
+        });
+        return;
+      }
+
+      try {
+        const res = await insightFn({ data: payload });
+        if (cancelled || !res.available) return;
+        const row = {
+          user_id: userId,
+          insight_date: today,
+          headline: res.headline,
+          body: res.body,
+          saving_estimate: res.savingEstimate ?? null,
+          linked_goal: res.linkedGoal ?? null,
+        };
+        const { data: saved } = await supabase
+          .from("daily_insights")
+          .upsert(row, { onConflict: "user_id,insight_date" })
+          .select("headline, body, saving_estimate, linked_goal")
+          .single();
+        if (cancelled) return;
+        const final = saved ?? row;
+        setInsight({
+          headline: final.headline,
+          body: final.body,
+          savingEstimate: final.saving_estimate ?? undefined,
+          linkedGoal: final.linked_goal ?? undefined,
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [payload.transactions.length, payload.goals.length]);
+
+  return insight;
+}
+
 function CoachCard({
   net,
   subsMonthly,
@@ -336,6 +439,7 @@ function CoachCard({
   net: number;
   subsMonthly: number;
 }) {
+  const dailyInsight = useDailyCoachInsight();
   const positive = net >= 0;
   const headline = positive
     ? `Il tuo bilancio attuale è di ${formatEUR(net)}.`
@@ -394,18 +498,48 @@ function CoachCard({
             Il tuo coach, oggi
           </span>
         </div>
-        <h1 className="font-display text-3xl leading-[1.15] md:text-4xl md:leading-[1.1] max-w-2xl">
-          "{headline.split(highlight)[0]}
-          <span className={positive ? "text-mint glow-mint" : "text-rose-soft"}>
-            {highlight}
-          </span>
-          {headline.split(highlight)[1] ?? ""}"
-        </h1>
-        <p className="max-w-xl text-lg text-muted-foreground leading-relaxed">
-          Le tue spese ricorrenti attive pesano {formatEUR(subsMonthly)}/mese
-          ({formatEUR(subsMonthly * 12)} l'anno). Rivedile per liberare
-          spazio di risparmio.
-        </p>
+        {dailyInsight ? (
+          <>
+            <h1 className="font-display text-3xl leading-[1.15] md:text-4xl md:leading-[1.1] max-w-2xl">
+              "{dailyInsight.headline}"
+            </h1>
+            <p className="max-w-xl text-lg text-muted-foreground leading-relaxed">
+              {dailyInsight.body}
+            </p>
+            {typeof dailyInsight.savingEstimate === "number" && dailyInsight.savingEstimate > 0 ||
+            dailyInsight.linkedGoal ? (
+              <div className="flex flex-wrap gap-2 -mt-1">
+                {typeof dailyInsight.savingEstimate === "number" && dailyInsight.savingEstimate > 0 ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-mint/10 border border-mint/20 px-3 py-1 text-xs text-mint">
+                    <Sparkles className="size-3" />
+                    Risparmio stimato {formatEUR(dailyInsight.savingEstimate)}/mese
+                  </span>
+                ) : null}
+                {dailyInsight.linkedGoal ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 border border-white/10 px-3 py-1 text-xs text-foreground">
+                    <Target className="size-3" />
+                    Obiettivo: {dailyInsight.linkedGoal}
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
+          </>
+        ) : (
+          <>
+            <h1 className="font-display text-3xl leading-[1.15] md:text-4xl md:leading-[1.1] max-w-2xl">
+              "{headline.split(highlight)[0]}
+              <span className={positive ? "text-mint glow-mint" : "text-rose-soft"}>
+                {highlight}
+              </span>
+              {headline.split(highlight)[1] ?? ""}"
+            </h1>
+            <p className="max-w-xl text-lg text-muted-foreground leading-relaxed">
+              Le tue spese ricorrenti attive pesano {formatEUR(subsMonthly)}/mese
+              ({formatEUR(subsMonthly * 12)} l'anno). Rivedile per liberare
+              spazio di risparmio.
+            </p>
+          </>
+        )}
         <div className="flex flex-wrap gap-3 mt-2">
           <AddTransactionDialog
             trigger={
