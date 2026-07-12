@@ -60,7 +60,10 @@ export function ForecastCategoryBreakdown() {
 
     const ranked = Array.from(totalsByCategory.entries()).sort((a, b) => b[1] - a[1]);
     const top = ranked.slice(0, PALETTE.length).map(([name]) => name);
-    const hasOther = ranked.length > PALETTE.length;
+    // If a real category is literally named "Altro" (the app's default/fallback
+    // category) and it ranks in the top N, don't add a second synthetic "Altro"
+    // bucket for the overflow — fold the overflow into the existing one instead.
+    const hasOther = ranked.length > PALETTE.length && !top.includes(OTHER_LABEL);
     const categories = top.concat(hasOther ? [OTHER_LABEL] : []);
 
     const colorMap = new Map<string, string>();
