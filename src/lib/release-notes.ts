@@ -1,10 +1,10 @@
-// Novità mostrate nel pop-up di benvenuto della dashboard. Ogni voce ha una
-// data di rilascio: il pop-up si propone quando ci sono novità più recenti
-// dell'ultimo batch che l'utente ha già visto.
-export type ReleaseNoteIcon = "calendar" | "credit-card" | "target";
+// Novità mostrate nel pop-up di benvenuto della dashboard, tenute allineate
+// a mano con le ultime voci del foglio Notion "Implementazioni". L'elenco è
+// in ordine dalla più recente alla più vecchia.
+export type ReleaseNoteIcon = "bell" | "receipt" | "pie-chart";
 
 export type ReleaseNote = {
-  date: string; // yyyy-MM-dd
+  date: string; // yyyy-MM-dd, data della voce su Notion
   title: string;
   description: string;
   tone: "new" | "improved";
@@ -13,36 +13,40 @@ export type ReleaseNote = {
 
 export const releaseNotes: ReleaseNote[] = [
   {
-    date: "2026-07-12",
-    title: "Proposta di inizio mese",
+    date: "2026-07-13",
+    title: "Pop-up di benvenuto",
     description:
-      "Un banner ti propone stipendio e spese ricorrenti da registrare non appena inizia il mese.",
+      "Un saluto personalizzato all'apertura della dashboard, con le ultime novità rilasciate.",
     tone: "new",
-    icon: "calendar",
+    icon: "bell",
+  },
+  {
+    date: "2026-07-13",
+    title: "Gestione Bollette",
+    description:
+      "Nuova sezione per bollette e scadenze: inserimento manuale, foto e promemoria di pagamento.",
+    tone: "new",
+    icon: "receipt",
   },
   {
     date: "2026-07-12",
-    title: "Riepilogo carta di credito",
+    title: "Grafico spese per categoria",
     description:
-      "Vedi subito quanto è stato addebitato questo mese, senza cercarlo tra i movimenti.",
+      'Risolto il bug che duplicava la voce "Altro" nella ciambella e nel grafico a barre del Forecast.',
     tone: "improved",
-    icon: "credit-card",
-  },
-  {
-    date: "2026-07-12",
-    title: "Foto sugli obiettivi",
-    description:
-      "Aggiungi un'immagine al tuo obiettivo di risparmio per vederne l'avanzamento a colpo d'occhio.",
-    tone: "new",
-    icon: "target",
+    icon: "pie-chart",
   },
 ];
 
-export function latestReleaseBatch(notes: ReleaseNote[] = releaseNotes): {
-  date: string | null;
-  notes: ReleaseNote[];
-} {
+// Le ultime `count` voci più recenti (non necessariamente della stessa data):
+// così il pop-up mostra sempre le ultime 3 novità pubblicate su Notion, anche
+// quando sono state aggiunte in giorni diversi.
+export function latestReleaseNotes(
+  count = 3,
+  notes: ReleaseNote[] = releaseNotes,
+): { date: string | null; notes: ReleaseNote[] } {
   if (notes.length === 0) return { date: null, notes: [] };
-  const latestDate = notes.reduce((max, n) => (n.date > max ? n.date : max), notes[0].date);
-  return { date: latestDate, notes: notes.filter((n) => n.date === latestDate) };
+  const sorted = [...notes].sort((a, b) => b.date.localeCompare(a.date));
+  const top = sorted.slice(0, count);
+  return { date: top[0].date, notes: top };
 }
