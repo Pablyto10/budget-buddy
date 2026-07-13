@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { CalendarClock, Check, CreditCard, Target } from "lucide-react";
+import { Bell, Check, PieChart, Receipt } from "lucide-react";
 import { isToday, isYesterday, format } from "date-fns";
 import { it } from "date-fns/locale";
 
@@ -12,15 +12,15 @@ import {
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useProfile } from "@/lib/profile-store";
-import { latestReleaseBatch, type ReleaseNoteIcon } from "@/lib/release-notes";
+import { latestReleaseNotes, type ReleaseNoteIcon } from "@/lib/release-notes";
 
 const SNOOZE_KEY = "budget-buddy:welcome-seen-until";
 const DISABLED_KEY = "budget-buddy:welcome-disabled";
 
-const NOTE_ICONS: Record<ReleaseNoteIcon, typeof CalendarClock> = {
-  calendar: CalendarClock,
-  "credit-card": CreditCard,
-  target: Target,
+const NOTE_ICONS: Record<ReleaseNoteIcon, typeof Bell> = {
+  bell: Bell,
+  receipt: Receipt,
+  "pie-chart": PieChart,
 };
 
 const NOTE_TONE_CLASSES: Record<"new" | "improved", string> = {
@@ -49,7 +49,7 @@ function batchDateLabel(dateISO: string) {
 
 export function WelcomeDialog() {
   const { profile } = useProfile();
-  const { date: batchDate, notes } = latestReleaseBatch();
+  const { date: batchDate, notes } = latestReleaseNotes(3);
   const [open, setOpen] = useState(false);
   const [dontShowAgain, setDontShowAgain] = useState(false);
 
