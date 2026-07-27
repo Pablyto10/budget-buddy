@@ -40,6 +40,31 @@ type Props = {
 
 const NO_RECURRENCE = "none";
 
+function toLocalDateInput(value: Date | string): string {
+  const d = typeof value === "string" ? new Date(value) : value;
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+// Builds an ISO timestamp from a "YYYY-MM-DD" date-input value, keeping the
+// time-of-day from referenceISO (or now) so the date is interpreted in the
+// user's local timezone instead of being parsed as UTC midnight.
+function toISOFromDateInput(dateStr: string, referenceISO?: string): string {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  const ref = referenceISO ? new Date(referenceISO) : new Date();
+  return new Date(
+    year,
+    month - 1,
+    day,
+    ref.getHours(),
+    ref.getMinutes(),
+    ref.getSeconds(),
+    ref.getMilliseconds(),
+  ).toISOString();
+}
+
 export function AddTransactionDialog({
   trigger,
   defaultKind = "expense",
@@ -58,7 +83,7 @@ export function AddTransactionDialog({
   const [category, setCategory] = useState<string>(transaction?.category ?? "");
   const [note, setNote] = useState(transaction?.note ?? "");
   const [date, setDate] = useState(
-    transaction ? transaction.date.slice(0, 10) : new Date().toISOString().slice(0, 10),
+    transaction ? toLocalDateInput(transaction.date) : toLocalDateInput(new Date()),
   );
   const [recurrence, setRecurrence] = useState<BillingCycle | typeof NO_RECURRENCE>(NO_RECURRENCE);
 
@@ -72,13 +97,13 @@ export function AddTransactionDialog({
       setMerchant(transaction.merchant);
       setCategory(transaction.category);
       setNote(transaction.note ?? "");
-      setDate(transaction.date.slice(0, 10));
+      setDate(toLocalDateInput(transaction.date));
     } else {
       setAmount("");
       setMerchant("");
       setCategory("");
       setNote("");
-      setDate(new Date().toISOString().slice(0, 10));
+      setDate(toLocalDateInput(new Date()));
       setKind(defaultKind);
     }
     setRecurrence(NO_RECURRENCE);
@@ -101,7 +126,7 @@ export function AddTransactionDialog({
       merchant: merchant.trim(),
       category: category || "Altro",
       note: note.trim() || undefined,
-      date: new Date(date).toISOString(),
+      date: toISOFromDateInput(date, transaction?.date),
     };
     if (canRecur && recurrence !== NO_RECURRENCE) {
       addSubscription({
